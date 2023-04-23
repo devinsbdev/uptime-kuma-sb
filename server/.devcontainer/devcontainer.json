@@ -1,0 +1,14 @@
+{
+	"name": "uptime-kuma",
+	"dockerComposeFile": [
+	  "../docker/docker-compose.yml"
+	],
+	"forwardPorts": [3000, 3001],
+	"service": "uptime-kuma",
+	"workspaceFolder": "/app",
+	"settings": {
+		"terminal.integrated.shell.linux": "/bin/sh"
+	  },
+	"postCreateCommand": ["yarn", "install"]
+  }
+  
