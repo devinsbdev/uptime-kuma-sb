@@ -78,6 +78,8 @@ class Monitor extends BeanModel {
             method: this.method,
             hostname: this.hostname,
             port: this.port,
+            smtpfrom: this.smtpfrom,
+            smtpto: this.smtpto,
             maxretries: this.maxretries,
             weight: this.weight,
             active: this.active,

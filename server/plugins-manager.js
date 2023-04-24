@@ -208,11 +208,11 @@ class PluginWrapper {
         if (fs.existsSync(indexFile)) {
             // Install dependencies
             let result = childProcess.spawnSync("npm", [ "install" ], {
-                cwd: this.pluginDir,
-                env: {
-                    ...process.env,
-                    PLAYWRIGHT_BROWSERS_PATH: "../../browsers",    // Special handling for read-browser-monitor
-                }
+                cwd: this.pluginDir
+                // env: {
+                //     ...process.env,
+                //     PLAYWRIGHT_BROWSERS_PATH: "../../browsers",    // Special handling for read-browser-monitor
+                // }
             });
 
             if (result.stdout) {

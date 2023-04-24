@@ -71,16 +71,18 @@
                                         </option>
                                     </optgroup>
 
-                                    <!--
-                                    Hidden for now: Reason refer to Setting.vue
-                                    <optgroup :label="$t('Custom Monitor Type')">
-                                        <option value="browser">
-                                            (Beta) HTTP(s) - Browser Engine (Chrome/Firefox)
+                                    
+                                    <optgroup :label="$t('Devin\'s Monitors')">
+                                        <option value="smtp">
+                                            SMTP (nodemailer)
                                         </option>
+                                        <!-- <option value="browser">
+                                            (Beta) HTTP(s) - Browser Engine (Chrome/Firefox)
+                                        </option> -->
                                     </optgroup>
                                 </select>
-                                -->
-                                </select>
+                                
+                                <!-- </select> -->
                             </div>
 
                             <!-- Friendly Name -->
@@ -133,16 +135,28 @@
 
                             <!-- Hostname -->
                             <!-- TCP Port / Ping / DNS / Steam / MQTT / Radius only -->
-                            <div v-if="monitor.type === 'port' || monitor.type === 'ping' || monitor.type === 'dns' || monitor.type === 'steam' || monitor.type === 'gamedig' ||monitor.type === 'mqtt' || monitor.type === 'radius'" class="my-3">
+                            <div v-if="monitor.type === 'port' || monitor.type === 'ping' || monitor.type === 'smtp' || monitor.type === 'dns' || monitor.type === 'steam' || monitor.type === 'gamedig' ||monitor.type === 'mqtt' || monitor.type === 'radius'" class="my-3">
                                 <label for="hostname" class="form-label">{{ $t("Hostname") }}</label>
                                 <input id="hostname" v-model="monitor.hostname" type="text" class="form-control" :pattern="`${monitor.type === 'mqtt' ? mqttIpOrHostnameRegexPattern : ipOrHostnameRegexPattern}`" required>
                             </div>
 
                             <!-- Port -->
                             <!-- For TCP Port / Steam / MQTT / Radius Type -->
-                            <div v-if="monitor.type === 'port' || monitor.type === 'steam' || monitor.type === 'gamedig' || monitor.type === 'mqtt' || monitor.type === 'radius'" class="my-3">
+                            <div v-if="monitor.type === 'port' || monitor.type === 'steam' || monitor.type === 'smtp' || monitor.type === 'gamedig' || monitor.type === 'mqtt' || monitor.type === 'radius'" class="my-3">
                                 <label for="port" class="form-label">{{ $t("Port") }}</label>
                                 <input id="port" v-model="monitor.port" type="number" class="form-control" required min="0" max="65535" step="1">
+                            </div>
+
+                            <p>{{ $t("Please ensure the SMTP server is configured to relay for the test email address domain.") }}</p>
+
+                            <div v-if="monitor.type === 'smtp'" class="my-3">
+                                <label for="smtpfrom" class="form-label">{{ $t("From") }}</label>
+                                <input id="smtpfrom" v-model="monitor.smtpfrom" type="text" class="form-control" required> <!-- :pattern="`${monitor.type === 'mqtt' ? mqttIpOrHostnameRegexPattern : emailRegexPattern}`" required> -->
+                            </div>
+
+                            <div v-if="monitor.type === 'smtp'" class="my-3">
+                                <label for="smtpto" class="form-label">{{ $t("To") }}</label>
+                                <input id="smtpto" v-model="monitor.smtpto" type="text" class="form-control" required> <!-- :pattern="`${monitor.type === 'mqtt' ? mqttIpOrHostnameRegexPattern : emailRegexPattern}`" required> -->
                             </div>
 
                             <!-- DNS Resolver Server -->
@@ -362,6 +376,13 @@
                                 <input id="ignore-tls" v-model="monitor.ignoreTls" class="form-check-input" type="checkbox" value="">
                                 <label class="form-check-label" for="ignore-tls">
                                     {{ $t("ignoreTLSError") }}
+                                </label>
+                            </div>
+
+                            <div v-if="monitor.type === 'smtp'" class="my-3 form-check">
+                                <input id="ignore-tls" v-model="monitor.ignoreTls" class="form-check-input" type="checkbox" value="">
+                                <label class="form-check-label" for="ignore-tls">
+                                    {{ $t("Ignore SMTP TLS errors") }}
                                 </label>
                             </div>
 

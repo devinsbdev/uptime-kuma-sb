@@ -1,0 +1,9 @@
+BEGIN TRANSACTION;
+
+ALTER TABLE monitor
+    ADD smtpfrom VARCHAR(255);
+
+ALTER TABLE monitor
+    ADD smtpto VARCHAR(255);
+
+COMMIT
