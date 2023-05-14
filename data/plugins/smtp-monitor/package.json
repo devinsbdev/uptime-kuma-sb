@@ -1,0 +1,10 @@
+{
+    "fullName": "SMTP Monitor",
+    "name": "smtp-monitor",
+    "pluginType": 1,
+    "version": "0.0.2",
+    "description": "(Beta) Monitoring your smtp server with nodemailer.",
+    "dependencies": {
+        "nodemailer": "~6.9.1"
+    }
+}

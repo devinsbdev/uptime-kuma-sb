@@ -2,7 +2,7 @@ const fs = require("fs");
 const { R } = require("redbean-node");
 const { setSetting, setting } = require("./util-server");
 const { log, sleep } = require("../src/util");
-const dayjs = require("dayjs");
+// const dayjs = require("dayjs");
 const knex = require("knex");
 const { PluginsManager } = require("./plugins-manager");
 
@@ -58,6 +58,7 @@ class Database {
         "patch-add-clickable-status-page-link.sql": true,
         "patch-add-sqlserver-monitor.sql": true,
         "patch-add-smtp-monitor.sql": true,
+        "patch-add-smtp-monitor-2.sql": true,
         "patch-add-other-auth.sql": { parents: [ "patch-monitor-basic-auth.sql" ] },
         "patch-grpc-monitor.sql": true,
         "patch-add-radius-monitor.sql": true,

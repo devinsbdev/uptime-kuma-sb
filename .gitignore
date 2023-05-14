@@ -5,14 +5,21 @@ dist-ssr
 *.local
 .idea
 
-/data
+/data/upload/
+/data/error.log
+/data/kuma.db
+/db/*.db
+/data/plugins/smtp-monitor/node_modules
+/data/plugins/smtp-monitor/services/*.json
 !/data/.gitkeep
 .vscode
-
+/microsoft-authentication-library-for-js
 /private
 /out
 /tmp
 .env
+
+certificate.crt
 
 cypress/videos
 cypress/screenshots

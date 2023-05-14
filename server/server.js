@@ -3,7 +3,7 @@
  * node "server/server.js"
  * DO NOT require("./server") in other modules, it likely creates circular dependency!
  */
-console.log("Welcome to Uptime Kuma");
+console.log("Welcome to Uptime Is The Right Time");
 
 // As the log function need to use dayjs, it should be very top
 const dayjs = require("dayjs");

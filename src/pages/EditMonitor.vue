@@ -71,7 +71,6 @@
                                         </option>
                                     </optgroup>
 
-                                    
                                     <optgroup :label="$t('Devin\'s Monitors')">
                                         <option value="smtp">
                                             SMTP (nodemailer)
@@ -81,7 +80,7 @@
                                         </option> -->
                                     </optgroup>
                                 </select>
-                                
+
                                 <!-- </select> -->
                             </div>
 
@@ -147,17 +146,42 @@
                                 <input id="port" v-model="monitor.port" type="number" class="form-control" required min="0" max="65535" step="1">
                             </div>
 
-                            <p>{{ $t("Please ensure the SMTP server is configured to relay for the test email address domain.") }}</p>
+                            <template v-if="monitor.type === 'smtp'" class="my-3">
+                                <div class="my-3">
+                                    <label for="smtpfrom" class="form-label">{{ $t("From") }}</label>
+                                    <input id="smtpfrom" v-model="monitor.smtpfrom" type="text" class="form-control" required> <!-- :pattern="`${monitor.type === 'mqtt' ? mqttIpOrHostnameRegexPattern : emailRegexPattern}`" required> -->
+                                </div>
 
-                            <div v-if="monitor.type === 'smtp'" class="my-3">
-                                <label for="smtpfrom" class="form-label">{{ $t("From") }}</label>
-                                <input id="smtpfrom" v-model="monitor.smtpfrom" type="text" class="form-control" required> <!-- :pattern="`${monitor.type === 'mqtt' ? mqttIpOrHostnameRegexPattern : emailRegexPattern}`" required> -->
-                            </div>
+                                <div class="my-3">
+                                    <label for="smtpto" class="form-label">{{ $t("To") }}</label>
+                                    <input id="smtpto" v-model="monitor.smtpto" type="text" class="form-control" required> <!-- :pattern="`${monitor.type === 'mqtt' ? mqttIpOrHostnameRegexPattern : emailRegexPattern}`" required> -->
+                                </div>
 
-                            <div v-if="monitor.type === 'smtp'" class="my-3">
-                                <label for="smtpto" class="form-label">{{ $t("To") }}</label>
-                                <input id="smtpto" v-model="monitor.smtpto" type="text" class="form-control" required> <!-- :pattern="`${monitor.type === 'mqtt' ? mqttIpOrHostnameRegexPattern : emailRegexPattern}`" required> -->
-                            </div>
+                                <!-- SMTP Auth -->
+                                <!-- <h4 class="mt-5 mb-2">{{ $t("Authentication") }}</h4> -->
+                                <div class="my-3">
+                                    <label for="type-smtpauth" class="form-label">{{ $t("Auth Method") }}</label>
+                                    <select id="type-smtpauth" v-model="monitor.authMethod" class="form-select">
+                                        <option :value="null">
+                                            {{ $t("None (Relay)") }}
+                                        </option>
+                                        <option value="basic">
+                                            {{ $t("SMTP Basic Auth") }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <template v-if="monitor.authMethod === 'basic' ">
+                                    <div class="my-3">
+                                        <label for="basicauth-smtp-user" class="form-label">{{ $t("Username") }}</label>
+                                        <input id="basicauth-smtp-user" v-model="monitor.basic_auth_user" type="text" class="form-control" :placeholder="$t('Username')">
+                                    </div>
+
+                                    <div class="my-3">
+                                        <label for="basicauth-smtp-pass" class="form-label">{{ $t("Password") }}</label>
+                                        <input id="basicauth-smtp-pass" v-model="monitor.basic_auth_pass" type="password" autocomplete="new-password" class="form-control" :placeholder="$t('Password')">
+                                    </div>
+                                </template>
+                            </template>
 
                             <!-- DNS Resolver Server -->
                             <!-- For DNS Type -->

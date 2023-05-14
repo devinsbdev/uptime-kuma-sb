@@ -10,6 +10,7 @@
                 <a v-if="monitor.type === 'http' || monitor.type === 'keyword' " :href="monitor.url" target="_blank" rel="noopener noreferrer">{{ monitor.url }}</a>
                 <span v-if="monitor.type === 'port'">TCP Ping {{ monitor.hostname }}:{{ monitor.port }}</span>
                 <span v-if="monitor.type === 'ping'">Ping: {{ monitor.hostname }}</span>
+                <span v-if="monitor.type === 'smtp'">SMTP Delay: {{ monitor.hostname }}</span>
                 <span v-if="monitor.type === 'keyword'">
                     <br>
                     <span>{{ $t("Keyword") }}:</span> <span class="keyword">{{ monitor.keyword }}</span>
@@ -17,6 +18,10 @@
                 <span v-if="monitor.type === 'dns'">[{{ monitor.dns_resolve_type }}] {{ monitor.hostname }}
                     <br>
                     <span>{{ $t("Last Result") }}:</span> <span class="keyword">{{ monitor.dns_last_result }}</span>
+                </span>
+                <span v-if="monitor.type === 'smtp'">
+                    <br>
+                    <span>{{ $t("Last Message ID") }}:</span> <span class="keyword">{{ lastResult }}</span>
                 </span>
             </p>
 
@@ -59,7 +64,7 @@
                         <p>({{ $t("Current") }})</p>
                         <span class="num">
                             <a href="#" @click.prevent="showPingChartBox = !showPingChartBox">
-                                <CountUp :value="ping" />
+                                <CountUp :value="ping" :unit="default" />
                             </a>
                         </span>
                     </div>
@@ -136,7 +141,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(beat, index) in displayedRecords" :key="index" :class="{ 'shadow-box': $root.windowWidth <= 550}" style="padding: 10px;">
+                        <tr v-for="(beat, index) in displayedRecords.slice(0,5)" :key="index" :class="{ 'shadow-box': $root.windowWidth <= 550}" style="padding: 10px;">
                             <td><Status :status="beat.status" /></td>
                             <td :class="{ 'border-0':! beat.msg}"><Datetime :value="beat.time" /></td>
                             <td class="border-0">{{ beat.msg }}</td>
@@ -226,6 +231,10 @@ export default {
             return this.$root.monitorList[id];
         },
 
+        lastResult() {
+            return this.lastHeartBeat.msg
+        },
+
         lastHeartBeat() {
             if (this.monitor.id in this.$root.lastHeartbeatList && this.$root.lastHeartbeatList[this.monitor.id]) {
                 return this.$root.lastHeartbeatList[this.monitor.id];
@@ -238,7 +247,7 @@ export default {
 
         ping() {
             if (this.lastHeartBeat.ping || this.lastHeartBeat.ping === 0) {
-                return this.lastHeartBeat.ping;
+                return this.lastHeartBeat.ping
             }
 
             return this.$t("notAvailableShort");
@@ -378,6 +387,8 @@ export default {
 
             if (this.monitor.type === "http") {
                 return this.$t(translationPrefix + "Response");
+            } else if (this.monitor.type === "smtp") {
+                return this.$t(translationPrefix + "Delivery Delay")
             }
 
             return this.$t(translationPrefix + "Ping");
