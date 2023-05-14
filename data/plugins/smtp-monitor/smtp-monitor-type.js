@@ -45,24 +45,22 @@ class SmtpMonitorType extends MonitorType {
             throw new Error(smtp_response.error)
         }
 
-        // if we don't find our message after a few min that's a fail
-        const st = setTimeout( () => {
-            heartbeat.status = DOWN;
-            heartbeat.msg = monitor.last_result = 'Timed out';
-            return;
-        }, 5000, heartbeat, monitor);
-
         // we'll call graph below to see if the message arrived
         var graph_client = new GraphClient(config);
         if (!(await graph_client.fetchClientCreds())) {
-            throw new Error('something is up with ur token bro, goaway');
+            throw new Error('something is up with ur azure token bro, goaway');
         }
 
         var testMsg = undefined;
+        var elapsed_secs = 0;
         while (testMsg === undefined) {
+            elapsed_secs = ((dayjs().valueOf() - startTime) / 1000)
+            if (elapsed_secs > 240) { // 4 min timeout
+                throw new Error(`Timed out waiting for test message ${startTime} to arrive. SMTP response was: ${smtp_response.response}`)
+            }
             // lets not completely hammer msgraph ok guys
-            await sleep(1500)
-            console.debug(`Checking for a matching 'x-sent-at' header ...`)
+            await sleep(2000)
+            // console.debug(`Checking for a matching 'x-sent-at' header ...`)
             testMsg = await this.checkMessages(graph_client, startTime);
         }
 
@@ -74,11 +72,13 @@ class SmtpMonitorType extends MonitorType {
         // if everything worked out then we'll have an 'accepted' response
         // and ping will be a positive integer (unit: ms)
         if (smtp_response.accepted.length >= 1 && ping > 0) {
-            monitor.last_result = heartbeat.msg = testMsg.internetMessageId
+            monitor.last_result = heartbeat.msg = `${dayjs().toDate()} | ${testMsg.internetMessageId} | ${smtp_response.response}`
             heartbeat.status = UP;
             heartbeat.ping = ping;
-            console.debug(`Clearing SMTP monitor timeout for ${monitor.name}`)
-            clearTimeout(st);
+        } else {
+            monitor.last_result = heartbeat.msg = `${dayjs().toDate()} | ${smtp_response.response} | ${smtp_response.error}`
+            heartbeat.status = DOWN;
+            heartbeat.ping = NaN;
         }
     }
 
@@ -86,7 +86,7 @@ class SmtpMonitorType extends MonitorType {
         // ideally we return this with the test message properties pulled from graph api
         var messageIWant;
 
-        const mail_user_id = 'example@example.com';
+        const mail_user_id = 'uptime-smtp-monitor@smithbucklin.com';
         const graph_uri = `users/${mail_user_id}/messages?$select=internetMessageId,` +
             `internetMessageHeaders,receivedDateTime,sentDateTime`;
         var headers = {
