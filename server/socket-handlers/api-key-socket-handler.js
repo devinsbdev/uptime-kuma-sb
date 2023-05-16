@@ -72,9 +72,12 @@ module.exports.apiKeySocketHandler = (socket) => {
 
             log.debug("apikeys", `Deleted API Key: ${keyID} User ID: ${socket.userID}`);
 
-            await R.exec("DELETE FROM api_key WHERE id = ? AND user_id = ? ", [
+            await R.exec("DELETE FROM ?? WHERE ?? = ? AND ?? = ? ", [
+                'api_key',
+                'id',
                 keyID,
-                socket.userID,
+                'user_id',
+                socket.userID
             ]);
 
             apicache.clear();
@@ -100,7 +103,11 @@ module.exports.apiKeySocketHandler = (socket) => {
 
             log.debug("apikeys", `Disabled Key: ${keyID} User ID: ${socket.userID}`);
 
-            await R.exec("UPDATE api_key SET active = 0 WHERE id = ? ", [
+            await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? ", [
+                'api_key',
+                'active',
+                'false',
+                'id',
                 keyID,
             ]);
 
@@ -127,7 +134,11 @@ module.exports.apiKeySocketHandler = (socket) => {
 
             log.debug("apikeys", `Enabled Key: ${keyID} User ID: ${socket.userID}`);
 
-            await R.exec("UPDATE api_key SET active = 1 WHERE id = ? ", [
+            await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? ", [
+                'api_key',
+                'active',
+                'true',
+                'id',
                 keyID,
             ]);
 

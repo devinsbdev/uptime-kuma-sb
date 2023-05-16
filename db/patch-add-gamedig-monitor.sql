@@ -1,5 +1,5 @@
 BEGIN TRANSACTION;
 
- ALTER TABLE monitor
+ ALTER TABLE public.monitor
      ADD game VARCHAR(255);
  COMMIT

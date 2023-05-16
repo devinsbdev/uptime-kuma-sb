@@ -42,8 +42,11 @@ router.get("/api/push/:pushToken", async (request, response) => {
         let statusString = request.query.status || "up";
         let status = (statusString === "up") ? UP : DOWN;
 
-        let monitor = await R.findOne("monitor", " push_token = ? AND active = 1 ", [
-            pushToken
+        let monitor = await R.findOne("monitor", " ?? = ? AND ?? = ? ", [
+            'push_token',
+            pushToken,
+            'active',
+            'true'
         ]);
 
         if (! monitor) {
@@ -133,7 +136,7 @@ router.get("/api/badge/:id/status", cache("5 minutes"), async (request, response
                 SELECT monitor_group.monitor_id FROM monitor_group, \`group\`
                 WHERE monitor_group.group_id = \`group\`.id
                 AND monitor_group.monitor_id = ?
-                AND public = 1
+                AND public = true
             `,
         [ requestedMonitorId ]
         );
@@ -212,7 +215,7 @@ router.get("/api/badge/:id/uptime/:duration?", cache("5 minutes"), async (reques
                 SELECT monitor_group.monitor_id FROM monitor_group, \`group\`
                 WHERE monitor_group.group_id = \`group\`.id
                 AND monitor_group.monitor_id = ?
-                AND public = 1
+                AND public = true
             `,
         [ requestedMonitorId ]
         );
@@ -277,15 +280,17 @@ router.get("/api/badge/:id/ping/:duration?", cache("5 minutes"), async (request,
         const overrideValue = value && parseFloat(value);
 
         const publicAvgPing = parseInt(await R.getCell(`
-                SELECT AVG(ping) FROM monitor_group, \`group\`, heartbeat
+                SELECT AVG(ping) FROM heartbeat,\'group\',monitor_group
                 WHERE monitor_group.group_id = \`group\`.id
-                AND heartbeat.time > DATETIME('now', ? || ' hours')
+                AND heartbeat.time > ??
                 AND heartbeat.ping IS NOT NULL
-                AND public = 1
+                AND public = true
                 AND heartbeat.monitor_id = ?
             `,
-        [ -requestedDuration, requestedMonitorId ]
+        [ requestedDuration, requestedMonitorId ],
+        false
         ));
+        // [ -requestedDuration, requestedMonitorId ],
 
         const badgeValues = { style };
 
@@ -345,13 +350,15 @@ router.get("/api/badge/:id/avg-response/:duration?", cache("5 minutes"), async (
         const publicAvgPing = parseInt(await R.getCell(`
             SELECT AVG(ping) FROM monitor_group, \`group\`, heartbeat
             WHERE monitor_group.group_id = \`group\`.id
-            AND heartbeat.time > DATETIME('now', ? || ' hours')
+            AND heartbeat.time > (TIMESTAMPTZ((NOW() - interval '${requestedDuration} hours')::timestamp))
             AND heartbeat.ping IS NOT NULL
-            AND public = 1
+            AND public = true
             AND heartbeat.monitor_id = ?
             `,
-        [ -requestedDuration, requestedMonitorId ]
+        [ requestedMonitorId ],
+        false
         ));
+        // [ -requestedDu ration, requestedMonitorId ],
 
         const badgeValues = { style };
 
@@ -428,7 +435,8 @@ router.get("/api/badge/:id/cert-exp", cache("5 minutes"), async (request, respon
             badgeValues.message = "N/A";
             badgeValues.color = badgeConstants.naColor;
         } else {
-            const tlsInfoBean = await R.findOne("monitor_tls_info", "monitor_id = ?", [
+            const tlsInfoBean = await R.findOne("monitor_tls_info", "?? = ?", [
+                'monitor_id',
                 requestedMonitorId,
             ]);
 

@@ -2,7 +2,7 @@
 BEGIN TRANSACTION;
 
 CREATE TABLE [status_page](
-    [id] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    [id] SERIAL PRIMARY KEY NOT NULL,
     [slug] VARCHAR(255) NOT NULL UNIQUE,
     [title] VARCHAR(255) NOT NULL,
     [description] TEXT,
@@ -20,12 +20,12 @@ CREATE UNIQUE INDEX [slug] ON [status_page]([slug]);
 
 
 CREATE TABLE [status_page_cname](
-    [id] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    [id] SERIAL PRIMARY KEY NOT NULL,
     [status_page_id] INTEGER NOT NULL REFERENCES [status_page]([id]) ON DELETE CASCADE ON UPDATE CASCADE,
     [domain] VARCHAR NOT NULL UNIQUE
 );
 
-ALTER TABLE incident ADD status_page_id INTEGER;
-ALTER TABLE [group] ADD status_page_id INTEGER;
+ALTER TABLE public.incident ADD status_page_id INTEGER;
+ALTER TABLE public.[group] ADD status_page_id INTEGER;
 
 COMMIT;

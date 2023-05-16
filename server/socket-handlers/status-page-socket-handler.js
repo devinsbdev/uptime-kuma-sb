@@ -3,7 +3,8 @@ const { checkLogin, setSetting } = require("../util-server");
 const dayjs = require("dayjs");
 const { log } = require("../../src/util");
 const ImageDataURI = require("../image-data-uri");
-const Database = require("../database");
+// const Database = require("../database");
+const Database = require("../database_new");
 const apicache = require("../modules/apicache");
 const StatusPage = require("../model/status_page");
 const { UptimeKumaServer } = require("../uptime-kuma-server");
@@ -25,15 +26,21 @@ module.exports.statusPageSocketHandler = (socket) => {
                 throw new Error("slug is not found");
             }
 
-            await R.exec("UPDATE incident SET pin = 0 WHERE status_page_id = ? ", [
+            await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? ", [
+                'incident',
+                'pin',
+                'false',
+                'status_page_id',
                 statusPageID
             ]);
 
             let incidentBean;
 
             if (incident.id) {
-                incidentBean = await R.findOne("incident", " id = ? AND status_page_id = ? ", [
+                incidentBean = await R.findOne("incident", " ?? = ? AND ?? = ? ", [
+                    'id',
                     incident.id,
+                    'status_page_id',
                     statusPageID
                 ]);
             }
@@ -74,7 +81,13 @@ module.exports.statusPageSocketHandler = (socket) => {
 
             let statusPageID = await StatusPage.slugToID(slug);
 
-            await R.exec("UPDATE incident SET pin = 0 WHERE pin = 1 AND status_page_id = ? ", [
+            await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? AND ?? = ? ", [
+                'incident',
+                'pin',
+                'false',
+                'pin',
+                'true',
+                'status_page_id',
                 statusPageID
             ]);
 
@@ -93,7 +106,8 @@ module.exports.statusPageSocketHandler = (socket) => {
         try {
             checkLogin(socket);
 
-            let statusPage = await R.findOne("status_page", " slug = ? ", [
+            let statusPage = await R.findOne("status_page", " ?? = ? ", [
+                'slug',
                 slug
             ]);
 
@@ -120,7 +134,8 @@ module.exports.statusPageSocketHandler = (socket) => {
             checkLogin(socket);
 
             // Save Config
-            let statusPage = await R.findOne("status_page", " slug = ? ", [
+            let statusPage = await R.findOne("status_page", " ?? = ? ", [
+                'slug',
                 slug
             ]);
 
@@ -177,8 +192,12 @@ module.exports.statusPageSocketHandler = (socket) => {
             for (let group of publicGroupList) {
                 let groupBean;
                 if (group.id) {
-                    groupBean = await R.findOne("group", " id = ? AND public = 1 AND status_page_id = ? ", [
+                    groupBean = await R.findOne("group", " ?? = ? AND ?? = ? AND ?? = ? ", [
+                        'id',
                         group.id,
+                        'public',
+                        'true',
+                        'status_page_id',
                         statusPage.id
                     ]);
                 } else {
@@ -192,7 +211,9 @@ module.exports.statusPageSocketHandler = (socket) => {
 
                 await R.store(groupBean);
 
-                await R.exec("DELETE FROM monitor_group WHERE group_id = ? ", [
+                await R.exec("DELETE FROM ?? WHERE ?? = ? ", [
+                    'monitor_group',
+                    'group_id',
                     groupBean.id
                 ]);
 
@@ -220,10 +241,14 @@ module.exports.statusPageSocketHandler = (socket) => {
             const slots = groupIDList.map(() => "?").join(",");
 
             const data = [
+                'group',
+                'id',
                 ...groupIDList,
+                'status_page_id',
                 statusPage.id
             ];
-            await R.exec(`DELETE FROM \`group\` WHERE id NOT IN (${slots}) AND status_page_id = ?`, data);
+            await R.exec(`DELETE FROM ?? WHERE ?? NOT IN (${slots}) AND ?? = ?`, data);
+            // await R.exec(`DELETE FROM \`group\` WHERE id NOT IN (${slots}) AND status_page_id = ?`, data);
 
             const server = UptimeKumaServer.getInstance();
 
@@ -315,17 +340,23 @@ module.exports.statusPageSocketHandler = (socket) => {
                 // But for incident & group, it is hard to add cascade foreign key during migration, so they have to be deleted manually.
 
                 // Delete incident
-                await R.exec("DELETE FROM incident WHERE status_page_id = ? ", [
+                await R.exec("DELETE FROM ?? WHERE ?? = ? ", [
+                    'incident',
+                    'status_page_id',
                     statusPageID
                 ]);
 
                 // Delete group
-                await R.exec("DELETE FROM `group` WHERE status_page_id = ? ", [
+                await R.exec("DELETE FROM ?? WHERE ?? = ? ", [
+                    'group',
+                    'status_page_id',
                     statusPageID
                 ]);
 
                 // Delete status_page
-                await R.exec("DELETE FROM status_page WHERE id = ? ", [
+                await R.exec("DELETE FROM ?? WHERE ?? = ? ", [
+                    'status_page',
+                    'id',
                     statusPageID
                 ]);
 

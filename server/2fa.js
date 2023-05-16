@@ -8,7 +8,11 @@ class TwoFA {
      * @returns {Promise<void>}
      */
     static async disable2FA(userID) {
-        return await R.exec("UPDATE `user` SET twofa_status = 0 WHERE id = ? ", [
+        return await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? ", [
+            'user',
+            'twofa_status',
+            '0',
+            'id',
             userID,
         ]);
     }

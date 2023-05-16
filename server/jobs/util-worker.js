@@ -1,5 +1,7 @@
 const { parentPort, workerData } = require("worker_threads");
-const Database = require("../database");
+// const Database = require("../database");
+const Database = require("../database_new");
+// const DatabasePSQL = require("../database_new");
 const path = require("path");
 
 /**
@@ -37,9 +39,9 @@ const connectDb = async function () {
     );
 
     Database.init({
-        "data-dir": dbPath,
+        "data-dir": dbPath
     });
-
+    
     await Database.connect();
 };
 

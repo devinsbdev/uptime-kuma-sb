@@ -33,7 +33,8 @@ router.get("/api/status-page/:slug", cache("5 minutes"), async (request, respons
 
     try {
         // Get Status Page
-        let statusPage = await R.findOne("status_page", " slug = ? ", [
+        let statusPage = await R.findOne("status_page", " ?? = ? ", [
+            'slug',
             slug
         ]);
 
@@ -71,7 +72,7 @@ router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (reques
         let monitorIDList = await R.getCol(`
             SELECT monitor_group.monitor_id FROM monitor_group, \`group\`
             WHERE monitor_group.group_id = \`group\`.id
-            AND public = 1
+            AND public = true
             AND \`group\`.status_page_id = ?
         `, [
             statusPageID
@@ -111,7 +112,8 @@ router.get("/api/status-page/:slug/manifest.json", cache("1440 minutes"), async 
 
     try {
         // Get Status Page
-        let statusPage = await R.findOne("status_page", " slug = ? ", [
+        let statusPage = await R.findOne("status_page", " ?? = ? ", [
+            'slug',
             slug
         ]);
 

@@ -3,9 +3,9 @@ BEGIN TRANSACTION;
 
 create table `group`
 (
-    id           INTEGER      not null
+    id           SERIAL      not null
         constraint group_pk
-            primary key autoincrement,
+            primary key,
     name         VARCHAR(255) not null,
     created_date DATETIME              default (DATETIME('now')) not null,
     public       BOOLEAN               default 0 not null,
@@ -15,7 +15,7 @@ create table `group`
 
 CREATE TABLE [monitor_group]
 (
-    [id]         INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    [id]         SERIAL PRIMARY KEY NOT NULL,
     [monitor_id] INTEGER                           NOT NULL REFERENCES [monitor] ([id]) ON DELETE CASCADE ON UPDATE CASCADE,
     [group_id]   INTEGER                           NOT NULL REFERENCES [group] ([id]) ON DELETE CASCADE ON UPDATE CASCADE,
     weight BOOLEAN NOT NULL DEFAULT 1000

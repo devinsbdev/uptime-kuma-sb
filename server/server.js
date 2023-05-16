@@ -81,7 +81,8 @@ log.debug("server", "Importing Proxy");
 const { Proxy } = require("./proxy");
 
 log.debug("server", "Importing Database");
-const Database = require("./database");
+// const Database = require("./database");
+const Database = require("../server/database_new");
 
 log.debug("server", "Importing Background Jobs");
 const { initBackgroundJobs, stopBackgroundJobs } = require("./jobs");
@@ -285,8 +286,11 @@ let needSetup = false;
 
                 log.info("auth", "Username from JWT: " + decoded.username);
 
-                let user = await R.findOne("user", " username = ? AND active = 1 ", [
+                let user = await R.findOne("user", " ?? = ? AND ?? = ? ", [
+                    'username',
                     decoded.username,
+                    'active',
+                    'true'
                 ]);
 
                 if (user) {
@@ -371,8 +375,11 @@ let needSetup = false;
                     if (user.twofa_last_token !== data.token && verify) {
                         afterLogin(socket, user);
 
-                        await R.exec("UPDATE `user` SET twofa_last_token = ? WHERE id = ? ", [
+                        await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? ", [
+                            'user',
+                            'twofa_last_token',
                             data.token,
+                            'id',
                             socket.userID,
                         ]);
 
@@ -429,8 +436,11 @@ let needSetup = false;
                 checkLogin(socket);
                 await doubleCheckPassword(socket, currentPassword);
 
-                let user = await R.findOne("user", " id = ? AND active = 1 ", [
+                let user = await R.findOne("user", " ?? = ? AND ?? = ? ", [
+                    'id',
                     socket.userID,
+                    'active',
+                    'true'
                 ]);
 
                 if (user.twofa_status === 0) {
@@ -444,8 +454,11 @@ let needSetup = false;
 
                     let uri = `otpauth://totp/Uptime%20Kuma:${user.username}?secret=${encodedSecret}`;
 
-                    await R.exec("UPDATE `user` SET twofa_secret = ? WHERE id = ? ", [
+                    await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? ", [
+                        'user',
+                        'twofa_secret',
                         newSecret,
+                        'id',
                         socket.userID,
                     ]);
 
@@ -478,7 +491,10 @@ let needSetup = false;
                 checkLogin(socket);
                 await doubleCheckPassword(socket, currentPassword);
 
-                await R.exec("UPDATE `user` SET twofa_status = 1 WHERE id = ? ", [
+                await R.exec("UPDATE ?? SET ?? = true; WHERE ?? = ? ", [
+                    'user',
+                    'twofa_status',
+                    'id',
                     socket.userID,
                 ]);
 
@@ -533,8 +549,11 @@ let needSetup = false;
                 checkLogin(socket);
                 await doubleCheckPassword(socket, currentPassword);
 
-                let user = await R.findOne("user", " id = ? AND active = 1 ", [
+                let user = await R.findOne("user", " ?? = ? AND ?? = ? ", [
+                    'id',
                     socket.userID,
+                    'active',
+                    'true'
                 ]);
 
                 let verify = notp.totp.verify(token, user.twofa_secret, twoFAVerifyOptions);
@@ -564,8 +583,11 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                let user = await R.findOne("user", " id = ? AND active = 1 ", [
+                let user = await R.findOne("user", " ?? = ? AND ?? = ? ", [
+                    'id',
                     socket.userID,
+                    'active',
+                    'true'
                 ]);
 
                 if (user.twofa_status === 1) {
@@ -673,7 +695,7 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                let bean = await R.findOne("monitor", " id = ? ", [ monitor.id ]);
+                let bean = await R.findOne("monitor", " ?? = ? ", [ 'id', monitor.id ]);
 
                 if (bean.user_id !== socket.userID) {
                     throw new Error("Permission denied.");
@@ -785,8 +807,10 @@ let needSetup = false;
 
                 log.info("monitor", `Get Monitor: ${monitorID} User ID: ${socket.userID}`);
 
-                let bean = await R.findOne("monitor", " id = ? AND user_id = ? ", [
+                let bean = await R.findOne("monitor", " ?? = ? AND ?? = ? ", [
+                    'id',
                     monitorID,
+                    'user_id',
                     socket.userID,
                 ]);
 
@@ -814,14 +838,28 @@ let needSetup = false;
                 }
 
                 let list = await R.getAll(`
-                    SELECT * FROM heartbeat
-                    WHERE monitor_id = ? AND
-                    time > DATETIME('now', '-' || ? || ' hours')
-                    ORDER BY time ASC
+                SELECT * FROM ??
+                WHERE ?? = ? AND
+                ?? > ?
+                ORDER BY ?? ASC
                 `, [
-                    monitorID,
                     period,
+                    'heartbeat',
+                    'monitor_id',
+                    monitorID,
+                    'time',
+                    'time'
                 ]);
+                
+                // let list = await R.getAll(`
+                //     SELECT * FROM heartbeat
+                //     WHERE monitor_id = ? AND
+                //     time > DATETIME('now', '-' || ? || ' hours')
+                //     ORDER BY time ASC
+                // `, [
+                //     monitorID,
+                //     period,
+                // ]);
 
                 callback({
                     ok: true,
@@ -885,8 +923,11 @@ let needSetup = false;
                     delete server.monitorList[monitorID];
                 }
 
-                await R.exec("DELETE FROM monitor WHERE id = ? AND user_id = ? ", [
+                await R.exec("DELETE FROM ?? WHERE ?? = ? AND ?? = ? ", [
+                    'monitor',
+                    'id',
                     monitorID,
+                    'user_id',
                     socket.userID,
                 ]);
 
@@ -955,7 +996,7 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                let bean = await R.findOne("tag", " id = ? ", [ tag.id ]);
+                let bean = await R.findOne("tag", " ?? = ? ", [ 'id', tag.id ]);
                 if (bean == null) {
                     callback({
                         ok: false,
@@ -985,7 +1026,7 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                await R.exec("DELETE FROM tag WHERE id = ? ", [ tagID ]);
+                await R.exec("DELETE FROM ?? WHERE ?? = ? ", ['tag', 'id', tagID ]);
 
                 callback({
                     ok: true,
@@ -1004,7 +1045,11 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                await R.exec("INSERT INTO monitor_tag (tag_id, monitor_id, value) VALUES (?, ?, ?)", [
+                await R.exec("INSERT INTO ?? (??, ??, ??) VALUES (?, ?, ?)", [
+                    'monitor_tag',
+                    'tag_id',
+                    'monitor_id',
+                    'value',
                     tagID,
                     monitorID,
                     value,
@@ -1027,9 +1072,13 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                await R.exec("UPDATE monitor_tag SET value = ? WHERE tag_id = ? AND monitor_id = ?", [
+                await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? AND ?? = ?", [
+                    'monitor_tag',
+                    'value',
                     value,
+                    'tag_id',
                     tagID,
+                    'monitor_id',
                     monitorID,
                 ]);
 
@@ -1050,14 +1099,24 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                await R.exec("DELETE FROM monitor_tag WHERE tag_id = ? AND monitor_id = ? AND value = ?", [
+                await R.exec("DELETE FROM ?? WHERE ?? = ? AND ?? = ? AND ?? = ?", [
+                    'monitor_tag',
+                    'tag_id',
                     tagID,
+                    'monitor_id',
                     monitorID,
+                    'value',
                     value,
                 ]);
 
                 // Cleanup unused Tags
-                await R.exec("delete from tag where ( select count(*) from monitor_tag mt where tag.id = mt.tag_id ) = 0");
+                await R.exec("delete from ?? where ( select count(*) from ?? mt where ? = ? ) = ?", [
+                    'tag',
+                    'monitor_tag',
+                    'tag.id',
+                    'mt.tag_id',
+                    '0'
+                ]);
 
                 callback({
                     ok: true,
@@ -1255,20 +1314,20 @@ let needSetup = false;
                         let monitor = server.monitorList[id];
                         await monitor.stop();
                     }
-                    await R.exec("DELETE FROM heartbeat");
-                    await R.exec("DELETE FROM monitor_notification");
-                    await R.exec("DELETE FROM monitor_tls_info");
-                    await R.exec("DELETE FROM notification");
-                    await R.exec("DELETE FROM monitor_tag");
-                    await R.exec("DELETE FROM tag");
-                    await R.exec("DELETE FROM monitor");
-                    await R.exec("DELETE FROM proxy");
+                    await R.exec("DELETE FROM ??", ['heartbeat']);
+                    await R.exec("DELETE FROM ??", ['monitor_notification']);
+                    await R.exec("DELETE FROM ??", ['monitor_tls_info']);
+                    await R.exec("DELETE FROM ??", ['notification']);
+                    await R.exec("DELETE FROM ??", ['monitor_tag']);
+                    await R.exec("DELETE FROM ??", ['tag']);
+                    await R.exec("DELETE FROM ??", ['monitor']);
+                    await R.exec("DELETE FROM ??", ['proxy']);
                 }
 
                 // Only starts importing if the backup file contains at least one notification
                 if (notificationListData.length >= 1) {
                     // Get every existing notification name and puts them in one simple string
-                    let notificationNameList = await R.getAll("SELECT name FROM notification");
+                    let notificationNameList = await R.getAll("SELECT ?? FROM ??", ['name', 'notification']);
                     let notificationNameListString = JSON.stringify(notificationNameList);
 
                     for (let i = 0; i < notificationListData.length; i++) {
@@ -1379,7 +1438,8 @@ let needSetup = false;
                                 for (const oldTag of monitorListData[i].tags) {
 
                                     // Check if tag already exists and get data ->
-                                    let tag = await R.findOne("tag", " name = ?", [
+                                    let tag = await R.findOne("tag", " ?? = ?", [
+                                        'name',
                                         oldTag.name,
                                     ]);
 
@@ -1398,7 +1458,11 @@ let needSetup = false;
                                     }
 
                                     // Assign the new created tag to the monitor
-                                    await R.exec("INSERT INTO monitor_tag (tag_id, monitor_id, value) VALUES (?, ?, ?)", [
+                                    await R.exec("INSERT INTO ?? (??, ??, ??) VALUES (?, ?, ?)", [
+                                        'monitor_tag',
+                                        'tag_id', 
+                                        'monitor_id', 
+                                        'value',
                                         tagId,
                                         bean.id,
                                         oldTag.value,
@@ -1442,9 +1506,13 @@ let needSetup = false;
 
                 log.info("manage", `Clear Events Monitor: ${monitorID} User ID: ${socket.userID}`);
 
-                await R.exec("UPDATE heartbeat SET msg = ?, important = ? WHERE monitor_id = ? ", [
+                await R.exec("UPDATE ?? SET ?? = ?, ?? = ? WHERE ?? = ? ", [
+                    'heartbeat',
+                    'msg',
                     "",
-                    "0",
+                    'important',
+                    "false",
+                    'monitor_id',
                     monitorID,
                 ]);
 
@@ -1468,7 +1536,9 @@ let needSetup = false;
 
                 log.info("manage", `Clear Heartbeats Monitor: ${monitorID} User ID: ${socket.userID}`);
 
-                await R.exec("DELETE FROM heartbeat WHERE monitor_id = ?", [
+                await R.exec("DELETE FROM ?? WHERE ?? = ?", [
+                    'heartbeat',
+                    'monitor_id',
                     monitorID
                 ]);
 
@@ -1492,7 +1562,7 @@ let needSetup = false;
 
                 log.info("manage", `Clear Statistics User ID: ${socket.userID}`);
 
-                await R.exec("DELETE FROM heartbeat");
+                await R.exec("DELETE FROM ??", ['heartbeat']);
 
                 callback({
                     ok: true,
@@ -1574,7 +1644,9 @@ let needSetup = false;
  * @returns {Promise<void>}
  */
 async function updateMonitorNotification(monitorID, notificationIDList) {
-    await R.exec("DELETE FROM monitor_notification WHERE monitor_id = ? ", [
+    await R.exec("DELETE FROM ?? WHERE ?? = ? ", [
+        'monitor_notification',
+        'monitor_id',
         monitorID,
     ]);
 
@@ -1655,11 +1727,10 @@ async function afterLogin(socket, user) {
  * @returns {Promise<void>}
  */
 async function initDatabase(testMode = false) {
-    if (! fs.existsSync(Database.path)) {
-        log.info("server", "Copying Database");
-        fs.copyFileSync(Database.templatePath, Database.path);
-    }
-
+    // if (! fs.existsSync(Database.path)) {
+    //     log.info("server", "Copying Database");
+    //     fs.copyFileSync(Database.templatePath, Database.path);
+    // }
     log.info("server", "Connecting to the Database");
     await Database.connect(testMode);
     log.info("server", "Connected");
@@ -1667,7 +1738,8 @@ async function initDatabase(testMode = false) {
     // Patch the database
     await Database.patch();
 
-    let jwtSecretBean = await R.findOne("setting", " `key` = ? ", [
+    let jwtSecretBean = await R.findOne("setting", " ?? = ? ", [
+        'key',
         "jwtSecret",
     ]);
 
@@ -1680,7 +1752,7 @@ async function initDatabase(testMode = false) {
     }
 
     // If there is no record in user table, it is a new Uptime Kuma instance, need to setup
-    if ((await R.count("user")) === 0) {
+    if ((await R.count("user", "id = 1", [], false)) === 0) {
         log.info("server", "No user, need setup");
         needSetup = true;
     }
@@ -1699,12 +1771,18 @@ async function startMonitor(userID, monitorID) {
 
     log.info("manage", `Resume Monitor: ${monitorID} User ID: ${userID}`);
 
-    await R.exec("UPDATE monitor SET active = 1 WHERE id = ? AND user_id = ? ", [
+    await R.exec("UPDATE  ?? SET ?? = ? WHERE ?? = ? AND ?? = ? ", [
+        'monitor',
+        'active',
+        'true',
+        'id',
         monitorID,
+        'user_id',
         userID,
     ]);
 
-    let monitor = await R.findOne("monitor", " id = ? ", [
+    let monitor = await R.findOne("monitor", " ?? = ? ", [
+        'id',
         monitorID,
     ]);
 
@@ -1737,8 +1815,13 @@ async function pauseMonitor(userID, monitorID) {
 
     log.info("manage", `Pause Monitor: ${monitorID} User ID: ${userID}`);
 
-    await R.exec("UPDATE monitor SET active = 0 WHERE id = ? AND user_id = ? ", [
+    await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? AND ?? = ? ", [
+        'monitor',
+        'active',
+        'true',
+        'id',
         monitorID,
+        'user_id',
         userID,
     ]);
 
@@ -1749,7 +1832,10 @@ async function pauseMonitor(userID, monitorID) {
 
 /** Resume active monitors */
 async function startMonitors() {
-    let list = await R.find("monitor", " active = 1 ");
+    let list = await R.find("monitor", " ?? = ? ", [
+        'active',
+        'true'
+    ]);
 
     for (let monitor of list) {
         server.monitorList[monitor.id] = monitor;

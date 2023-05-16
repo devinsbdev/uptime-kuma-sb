@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-ALTER TABLE monitor
+ALTER TABLE public.monitor
     ADD last_result VARCHAR(255);
 
 COMMIT

@@ -15,7 +15,7 @@ class DockerHost {
         let bean;
 
         if (dockerHostID) {
-            bean = await R.findOne("docker_host", " id = ? AND user_id = ? ", [ dockerHostID, userID ]);
+            bean = await R.findOne("docker_host", " ?? = ? AND ?? = ? ", [ 'id', dockerHostID, 'user_id', userID ]);
 
             if (!bean) {
                 throw new Error("docker host not found");
@@ -42,14 +42,20 @@ class DockerHost {
      * @returns {Promise<void>}
      */
     static async delete(dockerHostID, userID) {
-        let bean = await R.findOne("docker_host", " id = ? AND user_id = ? ", [ dockerHostID, userID ]);
+        let bean = await R.findOne("docker_host", " ?? = ? AND ?? = ? ", [ 'id', dockerHostID, 'user_id', userID ]);
 
         if (!bean) {
             throw new Error("docker host not found");
         }
 
         // Delete removed proxy from monitors if exists
-        await R.exec("UPDATE monitor SET docker_host = null WHERE docker_host = ?", [ dockerHostID ]);
+        await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ?", [ 
+            'monitor',
+            'docker_host',
+            'null',
+            'docker_host',
+            dockerHostID
+        ]);
 
         await R.trash(bean);
     }

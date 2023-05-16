@@ -1,13 +1,13 @@
 -- You should not modify if this have pushed to Github, unless it does serious wrong with the db.
 CREATE TABLE tag (
-	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	id SERIAL NOT NULL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
     color VARCHAR(255) NOT NULL,
 	created_date DATETIME DEFAULT (DATETIME('now')) NOT NULL
 );
 
 CREATE TABLE monitor_tag (
-	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	id SERIAL NOT NULL PRIMARY KEY,
 	monitor_id INTEGER NOT NULL,
 	tag_id INTEGER NOT NULL,
 	value TEXT,

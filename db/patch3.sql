@@ -1,13 +1,13 @@
 -- You should not modify if this have pushed to Github, unless it does serious wrong with the db.
 -- Add maxretries column to monitor
-PRAGMA foreign_keys=off;
+-- PRAGMA foreign_keys=off;
 
 BEGIN TRANSACTION;
 
 create table monitor_dg_tmp
 (
-    id INTEGER not null
-        primary key autoincrement,
+    id SERIAL not null
+        primary key,
     name VARCHAR(150),
     active BOOLEAN default 1 not null,
     user_id INTEGER
@@ -34,4 +34,4 @@ create index user_id on monitor (user_id);
 
 COMMIT;
 
-PRAGMA foreign_keys=on;
+-- PRAGMA foreign_keys=on;

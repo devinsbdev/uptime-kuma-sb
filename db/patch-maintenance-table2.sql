@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS maintenance_timeslot;
 
 -- maintenance
 CREATE TABLE [maintenance] (
-    [id] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    [id] SERIAL PRIMARY KEY NOT NULL,
     [title] VARCHAR(150) NOT NULL,
     [description] TEXT NOT NULL,
     [user_id] INTEGER REFERENCES [user]([id]) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -35,7 +35,7 @@ CREATE INDEX [maintenance_user_id] ON [maintenance] ([user_id]);
 
 -- maintenance_status_page
 CREATE TABLE maintenance_status_page (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id SERIAL NOT NULL PRIMARY KEY,
     status_page_id INTEGER NOT NULL,
     maintenance_id INTEGER NOT NULL,
     CONSTRAINT FK_maintenance FOREIGN KEY (maintenance_id) REFERENCES maintenance (id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -50,7 +50,7 @@ CREATE INDEX [maintenance_id_index]
 
 -- maintenance_timeslot
 CREATE TABLE [maintenance_timeslot] (
-    [id] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    [id] SERIAL PRIMARY KEY NOT NULL,
     [maintenance_id] INTEGER NOT NULL CONSTRAINT [FK_maintenance] REFERENCES [maintenance]([id]) ON DELETE CASCADE ON UPDATE CASCADE,
     [start_date] DATETIME NOT NULL,
     [end_date] DATETIME,
@@ -69,7 +69,7 @@ CREATE INDEX [generated_next_index] ON [maintenance_timeslot] ([generated_next])
 
 -- monitor_maintenance
 CREATE TABLE monitor_maintenance (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id SERIAL NOT NULL PRIMARY KEY,
     monitor_id INTEGER NOT NULL,
     maintenance_id INTEGER NOT NULL,
     CONSTRAINT FK_maintenance FOREIGN KEY (maintenance_id) REFERENCES maintenance (id) ON DELETE CASCADE ON UPDATE CASCADE,

@@ -5,7 +5,8 @@ const http = require("http");
 const { Server } = require("socket.io");
 const { R } = require("redbean-node");
 const { log } = require("../src/util");
-const Database = require("./database");
+// const Database = require("./database");
+const Database = require("../server/database_new");
 const util = require("util");
 const { CacheableDnsHttpAgent } = require("./cacheable-dns-http-agent");
 const { Settings } = require("./settings");
@@ -184,8 +185,9 @@ class UptimeKumaServer {
      * @returns {Promise<void>}
      */
     async loadMaintenanceList(userID) {
-        let maintenanceList = await R.findAll("maintenance", " ORDER BY end_date DESC, title", [
-
+        let maintenanceList = await R.findAll("maintenance", " ORDER BY ?? DESC, ??", [
+            'end_date',
+            'title'
         ]);
 
         for (let maintenance of maintenanceList) {

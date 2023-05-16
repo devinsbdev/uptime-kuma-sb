@@ -20,7 +20,8 @@ class StatusPage extends BeanModel {
      * @param {string} slug
      */
     static async handleStatusPageResponse(response, indexHTML, slug) {
-        let statusPage = await R.findOne("status_page", " slug = ? ", [
+        let statusPage = await R.findOne("status_page", " ?? = ? ", [
+            'slug',
             slug
         ]);
 
@@ -91,7 +92,12 @@ class StatusPage extends BeanModel {
      */
     static async getStatusPageData(statusPage) {
         // Incident
-        let incident = await R.findOne("incident", " pin = 1 AND active = 1 AND status_page_id = ? ", [
+        let incident = await R.findOne("incident", " ?? = ? AND ?? = ? AND ?? = ? ", [
+            'pin',
+            'true',
+            'active',
+            'true',
+            'status_page_id',
             statusPage.id,
         ]);
 
@@ -105,7 +111,7 @@ class StatusPage extends BeanModel {
         const publicGroupList = [];
         const showTags = !!statusPage.show_tags;
 
-        const list = await R.find("group", " public = 1 AND status_page_id = ? ORDER BY weight ", [
+        const list = await R.find("group", " public = true; AND status_page_id = ? ORDER BY weight ", [
             statusPage.id
         ]);
 
@@ -145,7 +151,7 @@ class StatusPage extends BeanModel {
     static async sendStatusPageList(io, socket) {
         let result = {};
 
-        let list = await R.findAll("status_page", " ORDER BY title ");
+        let list = await R.findAll("status_page", " ORDER BY ?? ", ['title']);
 
         for (let item of list) {
             result[item.id] = await item.toJSON();
@@ -263,9 +269,12 @@ class StatusPage extends BeanModel {
      * @param {string} slug
      */
     static async slugToID(slug) {
-        return await R.getCell("SELECT id FROM status_page WHERE slug = ? ", [
+        return await R.getCell("SELECT ?? FROM ?? WHERE ?? = ? ", [
+            'id',
+            'status_page',
+            'slug',
             slug
-        ]);
+        ], false);
     }
 
     /**

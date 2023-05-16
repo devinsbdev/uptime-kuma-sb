@@ -154,8 +154,10 @@ class Notification {
         let bean;
 
         if (notificationID) {
-            bean = await R.findOne("notification", " id = ? AND user_id = ? ", [
+            bean = await R.findOne("notification", " ?? = ? AND ?? = ? ", [
+                'id',
                 notificationID,
+                'user_id',
                 userID,
             ]);
 
@@ -187,8 +189,10 @@ class Notification {
      * @returns {Promise<void>}
      */
     static async delete(notificationID, userID) {
-        let bean = await R.findOne("notification", " id = ? AND user_id = ? ", [
+        let bean = await R.findOne("notification", " ?? = ? AND ?? = ? ", [
+            'id',
             notificationID,
+            'user_id',
             userID,
         ]);
 
@@ -218,13 +222,18 @@ class Notification {
  * @returns {Promise<void>}
  */
 async function applyNotificationEveryMonitor(notificationID, userID) {
-    let monitors = await R.getAll("SELECT id FROM monitor WHERE user_id = ?", [
+    let monitors = await R.getAll("SELECT ?? FROM ?? WHERE ?? = ?", [
+        'id',
+        'monitor',
+        'user_id',
         userID
     ]);
 
     for (let i = 0; i < monitors.length; i++) {
-        let checkNotification = await R.findOne("monitor_notification", " monitor_id = ? AND notification_id = ? ", [
+        let checkNotification = await R.findOne("monitor_notification", " ?? = ? AND ?? = ? ", [
+            'monitor_id',
             monitors[i].id,
+            'notification_id',
             notificationID,
         ]);
 

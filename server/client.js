@@ -80,7 +80,7 @@ async function sendImportantHeartbeatList(socket, monitorID, toUser = false, ove
 
     let list = await R.find("heartbeat", `
         monitor_id = ?
-        AND important = 1
+        AND important = true
         ORDER BY time DESC
         LIMIT 500
     `, [

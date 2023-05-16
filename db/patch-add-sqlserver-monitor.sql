@@ -1,9 +1,9 @@
 BEGIN TRANSACTION;
 
- ALTER TABLE monitor
+ ALTER TABLE public.monitor
      ADD database_connection_string VARCHAR(2000);
 
- ALTER TABLE monitor
+ ALTER TABLE public.monitor
      ADD database_query TEXT;
 
 

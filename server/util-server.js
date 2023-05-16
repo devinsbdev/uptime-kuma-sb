@@ -35,7 +35,8 @@ const isWindows = process.platform === /^win/.test(process.platform);
  * @returns {Promise<Bean>}
  */
 exports.initJWTSecret = async () => {
-    let jwtSecretBean = await R.findOne("setting", " `key` = ? ", [
+    let jwtSecretBean = await R.findOne("setting", " ?? = ? ", [
+        'key',
         "jwtSecret",
     ]);
 
@@ -659,8 +660,11 @@ exports.doubleCheckPassword = async (socket, currentPassword) => {
         throw new Error("Wrong data type?");
     }
 
-    let user = await R.findOne("user", " id = ? AND active = 1 ", [
+    let user = await R.findOne("user", " ?? = ? AND ?? = ? ", [
+        'id',
         socket.userID,
+        'active',
+        'true'
     ]);
 
     if (!user || !passwordHash.verify(currentPassword, user.password)) {

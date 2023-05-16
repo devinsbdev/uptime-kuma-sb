@@ -77,7 +77,9 @@ module.exports.maintenanceSocketHandler = (socket) => {
         try {
             checkLogin(socket);
 
-            await R.exec("DELETE FROM monitor_maintenance WHERE maintenance_id = ?", [
+            await R.exec("DELETE FROM ?? WHERE ?? = ?", [
+                'monitor_maintenance',
+                'maintenance_id',
                 maintenanceID
             ]);
 
@@ -111,7 +113,9 @@ module.exports.maintenanceSocketHandler = (socket) => {
         try {
             checkLogin(socket);
 
-            await R.exec("DELETE FROM maintenance_status_page WHERE maintenance_id = ?", [
+            await R.exec("DELETE FROM ?? WHERE ?? = ?", [
+                'maintenance_status_page',
+                'maintenance_id',
                 maintenanceID
             ]);
 
@@ -146,8 +150,10 @@ module.exports.maintenanceSocketHandler = (socket) => {
 
             log.debug("maintenance", `Get Maintenance: ${maintenanceID} User ID: ${socket.userID}`);
 
-            let bean = await R.findOne("maintenance", " id = ? AND user_id = ? ", [
+            let bean = await R.findOne("maintenance", " ?? = ? AND ?? = ? ", [
+                'id',
                 maintenanceID,
+                'user_id',
                 socket.userID,
             ]);
 
@@ -239,8 +245,11 @@ module.exports.maintenanceSocketHandler = (socket) => {
                 delete server.maintenanceList[maintenanceID];
             }
 
-            await R.exec("DELETE FROM maintenance WHERE id = ? AND user_id = ? ", [
+            await R.exec("DELETE FROM ?? WHERE ?? = ? AND ?? = ? ", [
+                'maintenance',
+                'id',
                 maintenanceID,
+                'user_id',
                 socket.userID,
             ]);
 

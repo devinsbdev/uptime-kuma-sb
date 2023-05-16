@@ -2,7 +2,7 @@
 BEGIN TRANSACTION;
 
 CREATE TABLE proxy (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id SERIAL NOT NULL PRIMARY KEY,
     user_id INT NOT NULL,
     protocol VARCHAR(10) NOT NULL,
     host VARCHAR(255) NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE proxy (
     created_date DATETIME DEFAULT (DATETIME('now')) NOT NULL
 );
 
-ALTER TABLE monitor ADD COLUMN proxy_id INTEGER REFERENCES proxy(id);
+ALTER TABLE public.monitor ADD COLUMN proxy_id INTEGER REFERENCES proxy(id);
 
 CREATE INDEX proxy_id ON monitor (proxy_id);
 CREATE INDEX proxy_user_id ON proxy (user_id);

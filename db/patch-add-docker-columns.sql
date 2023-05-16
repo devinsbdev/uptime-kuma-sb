@@ -2,17 +2,17 @@
 BEGIN TRANSACTION;
 
 CREATE TABLE docker_host (
-	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	id SERIAL NOT NULL PRIMARY KEY,
 	user_id INT NOT NULL,
 	docker_daemon VARCHAR(255),
 	docker_type VARCHAR(255),
 	name VARCHAR(255)
 );
 
-ALTER TABLE monitor
+ALTER TABLE public.monitor
 	ADD docker_host INTEGER REFERENCES docker_host(id);
 
-ALTER TABLE monitor
+ALTER TABLE public.monitor
 	ADD docker_container VARCHAR(255);
 
 COMMIT;

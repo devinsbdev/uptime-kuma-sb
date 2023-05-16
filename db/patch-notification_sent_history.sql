@@ -2,7 +2,7 @@
 BEGIN TRANSACTION;
 
 CREATE TABLE [notification_sent_history] (
-    [id] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    [id] SERIAL PRIMARY KEY NOT NULL,
     [type] VARCHAR(50) NOT NULL,
     [monitor_id] INTEGER NOT NULL,
     [days] INTEGER NOT NULL,

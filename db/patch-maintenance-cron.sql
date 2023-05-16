@@ -4,8 +4,8 @@ BEGIN TRANSACTION;
 DROP TABLE maintenance_timeslot;
 
 -- 999 characters. https://stackoverflow.com/questions/46134830/maximum-length-for-cron-job
-ALTER TABLE maintenance ADD cron TEXT;
-ALTER TABLE maintenance ADD timezone VARCHAR(255);
-ALTER TABLE maintenance ADD duration INTEGER;
+ALTER TABLE public.maintenance ADD cron TEXT;
+ALTER TABLE public.maintenance ADD timezone VARCHAR(255);
+ALTER TABLE public.maintenance ADD duration INTEGER;
 
 COMMIT;

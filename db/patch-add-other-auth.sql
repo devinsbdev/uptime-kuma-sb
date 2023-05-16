@@ -1,11 +1,11 @@
 BEGIN TRANSACTION;
 
-  ALTER TABLE monitor
+  ALTER TABLE public.monitor
       ADD auth_method VARCHAR(250);
 
-  ALTER TABLE monitor
+  ALTER TABLE public.monitor
       ADD auth_domain TEXT;
-  ALTER TABLE monitor
+  ALTER TABLE public.monitor
 
       ADD auth_workstation TEXT;
 

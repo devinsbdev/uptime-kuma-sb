@@ -1,18 +1,18 @@
 BEGIN TRANSACTION;
 
-ALTER TABLE monitor
+ALTER TABLE public.monitor
     ADD radius_username VARCHAR(255);
 
-ALTER TABLE monitor
+ALTER TABLE public.monitor
     ADD radius_password VARCHAR(255);
 
-ALTER TABLE monitor
+ALTER TABLE public.monitor
     ADD radius_calling_station_id VARCHAR(50);
 
-ALTER TABLE monitor
+ALTER TABLE public.monitor
     ADD radius_called_station_id VARCHAR(50);
 
-ALTER TABLE monitor
+ALTER TABLE public.monitor
     ADD radius_secret VARCHAR(255);
 
 COMMIT

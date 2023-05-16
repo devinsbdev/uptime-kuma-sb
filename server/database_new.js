@@ -5,6 +5,10 @@ const { log, sleep } = require("../src/util");
 // const dayjs = require("dayjs");
 const knex = require("knex");
 const { PluginsManager } = require("./plugins-manager");
+const { Client } = require('pg');
+const { startsWith } = require("lodash");
+// const { Database } = require("sqlite3");
+// const { Database } = require("sqlite3");
 
 /**
  * Database & App Data Folder
@@ -39,7 +43,7 @@ class Database {
      */
     static patchList = {
         "patch-setting-value-type.sql": true,
-        "patch-improve-performance.sql": true,
+        // "patch-improve-performance.sql": true,
         "patch-2fa.sql": true,
         "patch-add-retry-interval-monitor.sql": true,
         "patch-incident-table.sql": true,
@@ -86,27 +90,33 @@ class Database {
      * Initialize the database
      * @param {Object} args Arguments to initialize DB with
      */
-    static init(args) {
+    static async init(args) {
+
+        // Database.client = new Client();
+
+        Database.dataDir = './data/';
+
         // Data Directory (must be end with "/")
-        Database.dataDir = process.env.DATA_DIR || args["data-dir"] || "./data/";
+        // Database.dataDir = process.env.DATA_DIR || args["data-dir"] || "./data/";
 
         // Plugin feature is working only if the dataDir = "./data";
-        if (Database.dataDir !== "./data/") {
-            log.warn("PLUGIN", "Warning: In order to enable plugin feature, you need to use the default data directory: ./data/");
-            PluginsManager.disable = true;
-        }
+        // if (Database.dataDir !== "./data/") {
+        //     log.warn("PLUGIN", "Warning: In order to enable plugin feature, you need to use the default data directory: ./data/");
+        //     PluginsManager.disable = true;
+        // }
 
-        Database.path = Database.dataDir + "kuma.db";
-        if (! fs.existsSync(Database.dataDir)) {
-            fs.mkdirSync(Database.dataDir, { recursive: true });
-        }
+        // Database.path = Database.dataDir + "kuma.db";
+        // if (! fs.existsSync(Database.dataDir)) {
+        //     fs.mkdirSync(Database.dataDir, { recursive: true });
+        // }
 
         Database.uploadDir = Database.dataDir + "upload/";
 
         if (! fs.existsSync(Database.uploadDir)) {
             fs.mkdirSync(Database.uploadDir, { recursive: true });
         }
-
+        
+        
         log.info("db", `Data Dir: ${Database.dataDir}`);
     }
 
@@ -120,25 +130,29 @@ class Database {
      * @returns {Promise<void>}
      */
     static async connect(testMode = false, autoloadModels = true, noLog = false) {
+        
         const acquireConnectionTimeout = 120 * 1000;
 
-        const Dialect = require("knex/lib/dialects/sqlite3/index.js");
-        Dialect.prototype._driver = () => require("@louislam/sqlite3");
+        // const Dialect = require("knex/lib/dialects/sqlite3/index.js");
+        // Dialect.prototype._driver = () => require("@louislam/sqlite3");
 
         const knexInstance = knex({
-            client: Dialect,
+            client: 'pg',
             connection: {
-                filename: Database.path,
-                acquireConnectionTimeout: acquireConnectionTimeout,
+                host : '10.7.64.200',
+                port : 5435,
+                user : 'postgres',
+                password : 'postgres-pass!',
+                database : 'ukdb-livetest4',
+                acquireConnectionTimeout: acquireConnectionTimeout
             },
-            useNullAsDefault: true,
             pool: {
                 min: 1,
-                max: 1,
+                max: 10,
                 idleTimeoutMillis: 120 * 1000,
                 propagateCreateError: false,
                 acquireTimeoutMillis: acquireConnectionTimeout,
-            }
+            },
         });
 
         R.setup(knexInstance);
@@ -154,28 +168,28 @@ class Database {
             await R.autoloadModels("./server/model");
         }
 
-        await R.exec("PRAGMA foreign_keys = ON");
-        if (testMode) {
-            // Change to MEMORY
-            await R.exec("PRAGMA journal_mode = MEMORY");
-        } else {
-            // Change to WAL
-            await R.exec("PRAGMA journal_mode = WAL");
-        }
-        await R.exec("PRAGMA cache_size = -12000");
-        await R.exec("PRAGMA auto_vacuum = FULL");
+        // await R.exec("PRAGMA foreign_keys = ON");
+        // if (testMode) {
+        //     // Change to MEMORY
+        //     await R.exec("PRAGMA journal_mode = MEMORY");
+        // } else {
+        //     // Change to WAL
+        //     await R.exec("PRAGMA journal_mode = WAL");
+        // }
+        // await R.exec("PRAGMA cache_size = -12000");
+        // await R.exec("PRAGMA auto_vacuum = FULL");
 
         // This ensures that an operating system crash or power failure will not corrupt the database.
         // FULL synchronous is very safe, but it is also slower.
         // Read more: https://sqlite.org/pragma.html#pragma_synchronous
-        await R.exec("PRAGMA synchronous = FULL");
+        // await R.exec("PRAGMA synchronous = FULL");
 
-        if (!noLog) {
-            log.info("db", "SQLite config:");
-            log.info("db", await R.getAll("PRAGMA journal_mode"));
-            log.info("db", await R.getAll("PRAGMA cache_size"));
-            log.info("db", "SQLite Version: " + await R.getCell("SELECT sqlite_version()"));
-        }
+        // if (!noLog) {
+        //     log.info("db", "SQLite config:");
+        //     log.info("db", await R.getAll("PRAGMA journal_mode"));
+        //     log.info("db", await R.getAll("PRAGMA cache_size"));
+        //     log.info("db", "SQLite Version: " + await R.getCell("SELECT sqlite_version()"));
+        // }
     }
 
     /** Patch the database */
@@ -239,7 +253,7 @@ class Database {
 
         try {
             for (let sqlFilename in this.patchList) {
-                await this.patch2Recursion(sqlFilename, databasePatchedFiles);
+                await this.patch2Recursion(sqlFilename, databasePatchedFiles);                
             }
 
             if (this.patched) {
@@ -248,11 +262,10 @@ class Database {
 
         } catch (ex) {
             await Database.close();
-
             log.error("db", ex);
             log.error("db", "Start Uptime-Kuma failed due to issue patching the database");
             log.error("db", "Please submit the bug report if you still encounter the problem after restart: https://github.com/louislam/uptime-kuma/issues");
-
+            
             process.exit(1);
         }
 
@@ -266,7 +279,13 @@ class Database {
     static async migrateNewStatusPage() {
 
         // Fix 1.13.0 empty slug bug
-        await R.exec("UPDATE status_page SET slug = 'empty-slug-recover' WHERE TRIM(slug) = ''");
+        await R.exec("UPDATE ?? SET ?? = ? WHERE TRIM(?) = ?", [
+            'status_page',
+            'slug',
+            'empty-slug-recover',
+            'slug',
+            ''
+        ]);
 
         let title = await setting("title");
 
@@ -308,15 +327,26 @@ class Database {
 
             let id = await R.store(statusPage);
 
-            await R.exec("UPDATE incident SET status_page_id = ? WHERE status_page_id IS NULL", [
+            
+            await R.exec("UPDATE ?? SET ?? = ? WHERE ?? IS NULL", [
+                'incident',
+                'status_page_id',
+                id,
+                'status_page_id'
+            ]);
+
+            await R.exec("UPDATE [??] SET ?? = ? WHERE ?? IS NULL", [
+                'group',
+                'status_page_id',
+                'status_page_id',
                 id
             ]);
 
-            await R.exec("UPDATE [group] SET status_page_id = ? WHERE status_page_id IS NULL", [
-                id
+            await R.exec("DELETE FROM ?? WHERE ?? = ?", [
+                'setting',
+                'type',
+                'statusPage'
             ]);
-
-            await R.exec("DELETE FROM setting WHERE type = 'statusPage'");
 
             // Migrate Entry Page if it is status page
             let entryPage = await setting("entryPage");
@@ -375,7 +405,7 @@ class Database {
      */
     static async importSQLFile(filename) {
         // Sadly, multi sql statements is not supported by many sqlite libraries, I have to implement it myself
-        await R.getCell("SELECT 1");
+        // await R.getCell("SELECT 1", [], false);
 
         let text = fs.readFileSync(filename).toString();
 
@@ -423,7 +453,7 @@ class Database {
         log.info("db", "Closing the database");
 
         // Flush WAL to main database
-        await R.exec("PRAGMA wal_checkpoint(TRUNCATE)");
+        // await R.exec("PRAGMA wal_checkpoint(TRUNCATE)");
 
         while (true) {
             Database.noReject = true;
@@ -436,17 +466,18 @@ class Database {
                 log.info("db", "Waiting to close the database");
             }
         }
-        log.info("db", "SQLite closed");
+        // log.info("db", "SQLite closed");
 
         process.removeListener("unhandledRejection", listener);
     }
 
     /** Get the size of the database */
     static getSize() {
-        log.debug("db", "Database.getSize()");
-        let stats = fs.statSync(Database.path);
-        log.debug("db", stats);
-        return stats.size;
+        // log.debug("db", "Database.getSize()");
+        // let stats = fs.statSync(Database.path);
+        // log.debug("db", stats);
+        // return stats.size;
+        return NaN
     }
 
     /**
@@ -454,7 +485,8 @@ class Database {
      * @returns {Promise<void>}
      */
     static async shrink() {
-        await R.exec("VACUUM");
+        // await R.exec("VACUUM");
+        await sleep(100)
     }
 }
 
