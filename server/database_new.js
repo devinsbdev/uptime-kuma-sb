@@ -32,7 +32,7 @@ class Database {
     /**
      * @type {boolean}
      */
-    static patched = false;
+    static patched = true;
 
     /**
      * Add patch filename in key
@@ -143,7 +143,7 @@ class Database {
                 port : 5435,
                 user : 'postgres',
                 password : 'postgres-pass!',
-                database : 'ukdb-livetest4',
+                database : 'another-one',
                 acquireConnectionTimeout: acquireConnectionTimeout
             },
             pool: {
@@ -230,8 +230,8 @@ class Database {
             }
         }
 
-        await this.patch2();
-        await this.migrateNewStatusPage();
+        // await this.patch2();
+        // await this.migrateNewStatusPage();
     }
 
     /**

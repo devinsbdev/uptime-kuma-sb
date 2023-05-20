@@ -76,9 +76,9 @@ class SmtpMonitorType extends MonitorType {
             heartbeat.status = UP;
             heartbeat.ping = ping;
         } else {
-            monitor.last_result = heartbeat.msg = `${dayjs().toDate()} | ${smtp_response.response} | ${smtp_response.error}`
-            heartbeat.status = DOWN;
-            heartbeat.ping = NaN;
+            throw new Error(`Test message failed: Stdout: ${smtp_response.respose}; Stderr: ${smtp_response.error}`)
+            // monitor.last_result = heartbeat.msg = `${dayjs().toDate()} | ${smtp_response.response} | ${smtp_response.error}`
+            // heartbeat.status = DOWN;
         }
     }
 

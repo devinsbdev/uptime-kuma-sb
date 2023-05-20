@@ -53,7 +53,7 @@ class Settings {
         R.debug(true);
         let value = await R.getCell('SELECT ?? FROM ?? WHERE ?? = ?', [
             'value',
-            'public.setting',
+            'setting',
             'key',
             key,
         ], false);

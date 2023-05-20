@@ -11,7 +11,7 @@ class TwoFA {
         return await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? ", [
             'user',
             'twofa_status',
-            '0',
+            0,
             'id',
             userID,
         ]);

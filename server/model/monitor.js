@@ -985,17 +985,12 @@ class Monitor extends BeanModel {
         const timeLogger = new TimeLogger();
 
         let avgPing = parseInt(await R.getCell(`
-            SELECT AVG(??)
-            FROM ??
-            WHERE ?? > (TIMESTAMPTZ((NOW() - interval '${duration} hours')::timestamp))
-            AND ?? IS NOT NULL
-            AND ?? = ?
+            SELECT AVG(ping)
+            FROM heartbeat
+            WHERE time > (TIMESTAMPTZ((NOW() - interval '${duration} hours')::timestamp))
+            AND ping IS NOT NULL
+            AND monitor_id = ?
             `, [
-                'ping',
-                'heartbeat',
-                'time',
-                'ping',
-                'monitor_id',
                 monitorID,
         ], false));
 

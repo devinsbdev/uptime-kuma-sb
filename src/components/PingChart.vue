@@ -119,7 +119,7 @@ export default {
                             display: true,
                             text: this.$t("respTime"),
                         },
-                        offset: false,
+                        offset: true,
                         grid: {
                             color: this.$root.theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)",
                         },
@@ -173,7 +173,8 @@ export default {
                     // Filtering as data gets appended
                     // not the most efficient, but works for now
                     (beat) => dayjs.utc(beat.time).tz(this.$root.timezone).isAfter(
-                        dayjs().subtract(Math.max(this.chartPeriodHrs, 6), "hours")
+                        dayjs().subtract(Math.max(this.chartPeriodHrs, 0), "hours")
+                        // dayjs().subtract(Math.max(this.chartPeriodHrs, 6), "hours")
                     )
                 )
                 .map((beat) => {

@@ -619,7 +619,7 @@ let needSetup = false;
                     throw new Error("Password is too weak. It should contain alphabetic and numeric characters. It must be at least 6 characters in length.");
                 }
 
-                if ((await R.count("user")) !== 0) {
+                if ((await R.count("user", undefined, [], false)) !== '0') {
                     throw new Error("Uptime Kuma has been initialized. If you want to run setup again, please delete the database.");
                 }
 
@@ -652,7 +652,9 @@ let needSetup = false;
             try {
                 checkLogin(socket);
                 let bean = R.dispense("monitor");
-
+                if (!bean.port && bean.getType() === 'http') {
+                    bean.port = 443;
+                }
                 let notificationIDList = monitor.notificationIDList;
                 delete monitor.notificationIDList;
 
@@ -694,6 +696,10 @@ let needSetup = false;
         socket.on("editMonitor", async (monitor, callback) => {
             try {
                 checkLogin(socket);
+
+                if (!monitor.port && monitor.type === 'http') {
+                    monitor.port = 443;
+                }
 
                 let bean = await R.findOne("monitor", " ?? = ? ", [ 'id', monitor.id ]);
 
@@ -835,20 +841,17 @@ let needSetup = false;
 
                 if (period == null) {
                     throw new Error("Invalid period.");
+                } else if (period === 0) {
+                    period = 0.5
                 }
 
                 let list = await R.getAll(`
-                SELECT * FROM ??
-                WHERE ?? = ? AND
-                ?? > ?
-                ORDER BY ?? ASC
+                SELECT * FROM heartbeat
+                WHERE monitor_id = ? AND
+                time > (TIMESTAMPTZ((NOW() - interval '${period} hours')::timestamp))
+                ORDER BY time ASC
                 `, [
-                    period,
-                    'heartbeat',
-                    'monitor_id',
                     monitorID,
-                    'time',
-                    'time'
                 ]);
                 
                 // let list = await R.getAll(`
@@ -1115,7 +1118,7 @@ let needSetup = false;
                     'monitor_tag',
                     'tag.id',
                     'mt.tag_id',
-                    '0'
+                    0
                 ]);
 
                 callback({
@@ -1736,7 +1739,8 @@ async function initDatabase(testMode = false) {
     log.info("server", "Connected");
 
     // Patch the database
-    await Database.patch();
+    // await Database.patch();
+    await Database.migrateNewStatusPage();
 
     let jwtSecretBean = await R.findOne("setting", " ?? = ? ", [
         'key',
@@ -1752,7 +1756,7 @@ async function initDatabase(testMode = false) {
     }
 
     // If there is no record in user table, it is a new Uptime Kuma instance, need to setup
-    if ((await R.count("user", "id = 1", [], false)) === 0) {
+    if ((await R.count("user", undefined, [], false)) === '0') {
         log.info("server", "No user, need setup");
         needSetup = true;
     }

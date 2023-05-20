@@ -4,11 +4,13 @@ dist
 dist-ssr
 *.local
 .idea
-
+/db/converted/
+/data/*.db
+/data/*.log
 /data/upload/
-/data/error.log
-/data/kuma.db
 /db/*.db
+/data/kuma.db-shm
+/data/kuma.db-wal
 /data/plugins/smtp-monitor/node_modules
 /data/plugins/smtp-monitor/services/*.json
 !/data/.gitkeep
