@@ -12,7 +12,8 @@ dayjs.extend(require("./modules/dayjs/plugin/timezone"));
 dayjs.extend(require("dayjs/plugin/customParseFormat"));
 
 // Load environment variables from `.env`
-require("dotenv").config();
+// require("dotenv").config();
+require("dotenv").config({ path: "data/.env" });
 
 // Check Node.js Version
 const nodeVersion = parseInt(process.versions.node.split(".")[0]);
@@ -170,7 +171,7 @@ let jwtSecret = null;
 let needSetup = false;
 
 (async () => {
-    Database.init(args);
+    // Database.init(args);
     await initDatabase(testMode);
     await server.initAfterDatabaseReady();
     server.loadPlugins();
@@ -982,6 +983,15 @@ let needSetup = false;
                 bean.color = tag.color;
                 await R.store(bean);
 
+                // 'id' isn't getting updated in redbean module
+                // refresh it manually then!
+                bean = await R.findOne('tag', '?? = ? AND ?? = ?', [
+                    'name',
+                    tag.name,
+                    'color',
+                    tag.color
+                ]);
+
                 callback({
                     ok: true,
                     tag: await bean.toJSON(),
@@ -1740,7 +1750,7 @@ async function initDatabase(testMode = false) {
 
     // Patch the database
     // await Database.patch();
-    await Database.migrateNewStatusPage();
+    // await Database.migrateNewStatusPage();
 
     let jwtSecretBean = await R.findOne("setting", " ?? = ? ", [
         'key',

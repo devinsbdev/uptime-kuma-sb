@@ -70,11 +70,14 @@ router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (reques
         let statusPageID = await StatusPage.slugToID(slug);
 
         let monitorIDList = await R.getCol(`
-            SELECT monitor_group.monitor_id FROM monitor_group, \`group\`
-            WHERE monitor_group.group_id = \`group\`.id
+            SELECT monitor_group.monitor_id FROM monitor_group, ??
+            WHERE monitor_group.group_id = ??.id
             AND public = true
-            AND \`group\`.status_page_id = ?
+            AND ??.status_page_id = ?
         `, [
+            'group',
+            'group',
+            'group',
             statusPageID
         ]);
 

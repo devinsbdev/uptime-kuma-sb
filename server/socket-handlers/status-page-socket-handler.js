@@ -210,10 +210,15 @@ module.exports.statusPageSocketHandler = (socket) => {
                 groupBean.weight = groupOrder++;
 
                 await R.store(groupBean);
+                
+                if (!groupBean.id) {
+                    groupBean = await R.findOne("group", "status_page_Id = ? AND name = ?", [
+                        statusPage.id,
+                        group.name
+                    ]);
+                }
 
-                await R.exec("DELETE FROM ?? WHERE ?? = ? ", [
-                    'monitor_group',
-                    'group_id',
+                await R.exec("DELETE FROM monitor_group WHERE group_id = ? ", [
                     groupBean.id
                 ]);
 
@@ -242,13 +247,11 @@ module.exports.statusPageSocketHandler = (socket) => {
 
             const data = [
                 'group',
-                'id',
                 ...groupIDList,
-                'status_page_id',
                 statusPage.id
             ];
-            await R.exec(`DELETE FROM ?? WHERE ?? NOT IN (${slots}) AND ?? = ?`, data);
-            // await R.exec(`DELETE FROM \`group\` WHERE id NOT IN (${slots}) AND status_page_id = ?`, data);
+            await R.exec(`DELETE FROM ?? WHERE id NOT IN (${slots}) AND status_page_id = ?`, data);
+            // await R.exec(`DELETE FROM ?? WHERE ?? NOT IN (${slots}) AND ?? = ?`, data);
 
             const server = UptimeKumaServer.getInstance();
 

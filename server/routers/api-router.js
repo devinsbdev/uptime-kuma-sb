@@ -133,12 +133,12 @@ router.get("/api/badge/:id/status", cache("5 minutes"), async (request, response
         const overrideValue = value !== undefined ? parseInt(value) : undefined;
 
         let publicMonitor = await R.getRow(`
-                SELECT monitor_group.monitor_id FROM monitor_group, \`group\`
-                WHERE monitor_group.group_id = \`group\`.id
+                SELECT monitor_group.monitor_id FROM monitor_group, ??
+                WHERE monitor_group.group_id = ??.id
                 AND monitor_group.monitor_id = ?
                 AND public = true
             `,
-        [ requestedMonitorId ]
+        [ 'group', 'group', requestedMonitorId ]
         );
 
         const badgeValues = { style };
@@ -212,12 +212,12 @@ router.get("/api/badge/:id/uptime/:duration?", cache("5 minutes"), async (reques
         const overrideValue = value && parseFloat(value);
 
         let publicMonitor = await R.getRow(`
-                SELECT monitor_group.monitor_id FROM monitor_group, \`group\`
-                WHERE monitor_group.group_id = \`group\`.id
+                SELECT monitor_group.monitor_id FROM monitor_group, ??
+                WHERE monitor_group.group_id = ??.id
                 AND monitor_group.monitor_id = ?
                 AND public = true
             `,
-        [ requestedMonitorId ]
+        [ 'group', 'group', requestedMonitorId ]
         );
 
         const badgeValues = { style };
@@ -280,14 +280,14 @@ router.get("/api/badge/:id/ping/:duration?", cache("5 minutes"), async (request,
         const overrideValue = value && parseFloat(value);
 
         const publicAvgPing = parseInt(await R.getCell(`
-                SELECT AVG(ping) FROM heartbeat,\'group\',monitor_group
-                WHERE monitor_group.group_id = \`group\`.id
+                SELECT AVG(ping) FROM heartbeat, ??,monitor_group
+                WHERE monitor_group.group_id = ??.id
                 AND heartbeat.time > ??
                 AND heartbeat.ping IS NOT NULL
                 AND public = true
                 AND heartbeat.monitor_id = ?
             `,
-        [ requestedDuration, requestedMonitorId ],
+        [ 'group', 'group', requestedDuration, requestedMonitorId ],
         false
         ));
         // [ -requestedDuration, requestedMonitorId ],
@@ -419,12 +419,12 @@ router.get("/api/badge/:id/cert-exp", cache("5 minutes"), async (request, respon
         const overrideValue = value && parseFloat(value);
 
         let publicMonitor = await R.getRow(`
-            SELECT monitor_group.monitor_id FROM monitor_group, \`group\`
-            WHERE monitor_group.group_id = \`group\`.id
+            SELECT monitor_group.monitor_id FROM monitor_group, ??
+            WHERE monitor_group.group_id = ??.id
             AND monitor_group.monitor_id = ?
             AND public = 1
             `,
-        [ requestedMonitorId ]
+        [ 'group', 'group', requestedMonitorId ]
         );
 
         const badgeValues = { style };
@@ -505,12 +505,12 @@ router.get("/api/badge/:id/response", cache("5 minutes"), async (request, respon
         const overrideValue = value && parseFloat(value);
 
         let publicMonitor = await R.getRow(`
-            SELECT monitor_group.monitor_id FROM monitor_group, \`group\`
-            WHERE monitor_group.group_id = \`group\`.id
+            SELECT monitor_group.monitor_id FROM monitor_group, ??
+            WHERE monitor_group.group_id = ??.id
             AND monitor_group.monitor_id = ?
             AND public = 1
             `,
-        [ requestedMonitorId ]
+        [ 'group', 'group', requestedMonitorId ]
         );
 
         const badgeValues = { style };

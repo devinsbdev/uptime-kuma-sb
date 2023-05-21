@@ -45,8 +45,9 @@
         <Confirm
             ref="confirmClearStatistics"
             btn-style="btn-danger"
-            :yes-text="$t('Yes')"
-            :no-text="$t('No')"
+            :yes-text="$t('I need this done yesterday!')"
+            :no-text="$t('Nevermind.')"
+            :title="$t('Uh, yeah.. sure. Can we talk first?')"
             @yes="clearStatistics"
         >
             {{ $t("confirmClearStatisticsMsg") }}
@@ -83,9 +84,10 @@ export default {
             return this.$parent.$parent.$parent.settingsLoaded;
         },
         databaseSizeDisplay() {
-            return (
-                Math.round((this.databaseSize / 1024 / 1024) * 10) / 10 + " MB"
-            );
+            return this.databaseSize
+            //  (return
+                // Math.round((this.databaseSize / 1024 / 1024) * 10) / 10 + " MB"
+            // );
         },
     },
 
@@ -95,9 +97,9 @@ export default {
 
     methods: {
         /** Get the current size of the database */
-        loadDatabaseSize() {
+        async loadDatabaseSize() {
             log.debug("monitorhistory", "load database size");
-            this.$root.getSocket().emit("getDatabaseSize", (res) => {
+            await this.$root.getSocket().emit("getDatabaseSize", (res) => {
                 if (res.ok) {
                     this.databaseSize = res.size;
                     log.debug("monitorhistory", "database size: " + res.size);

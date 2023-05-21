@@ -145,11 +145,12 @@ export default {
         },
 
         hasNewVersion() {
-            if (this.$root.info.latestVersion && this.$root.info.version) {
-                return compareVersions(this.$root.info.latestVersion, this.$root.info.version) >= 1;
-            } else {
-                return false;
-            }
+            return false;
+            // if (this.$root.info.latestVersion && this.$root.info.version) {
+            //     return compareVersions(this.$root.info.latestVersion, this.$root.info.version) >= 1;
+            // } else {
+            //     return false;
+            // }
         },
 
     },
@@ -255,7 +256,7 @@ main {
         transition: all 0.2s;
         padding-left: 0;
         padding-bottom: 0;
-        margin-top: 8px !important;
+        // margin-top: 8px !important;
         border-radius: 16px;
         overflow: hidden;
 

@@ -14,7 +14,7 @@ module.exports = (socket) => {
             checkLogin(socket);
             callback({
                 ok: true,
-                size: Database.getSize(),
+                size: await Database.getSize('all'),
             });
         } catch (error) {
             callback({
@@ -27,7 +27,7 @@ module.exports = (socket) => {
     socket.on("shrinkDatabase", async (callback) => {
         try {
             checkLogin(socket);
-            Database.shrink();
+            await Database.shrinkFull();
             callback({
                 ok: true,
             });

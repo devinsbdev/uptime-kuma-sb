@@ -38,10 +38,6 @@ const connectDb = async function () {
         process.env.DATA_DIR || workerData["data-dir"] || "./data/"
     );
 
-    Database.init({
-        "data-dir": dbPath
-    });
-    
     await Database.connect();
 };
 

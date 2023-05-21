@@ -161,6 +161,7 @@ CREATE TABLE "monitor_group"
     id         SERIAL PRIMARY KEY NOT NULL,
     monitor_id INTEGER NOT NULL REFERENCES "monitor" (id) ON DELETE CASCADE ON UPDATE CASCADE,
     group_id   INTEGER NOT NULL REFERENCES "group" (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    send_url BOOLEAN NOT NULL DEFAULT false,
     weight INTEGER NOT NULL DEFAULT 1000
 );
 
@@ -178,7 +179,7 @@ CREATE TABLE "status_page" (
     google_analytics_tag_id VARCHAR,
     footer_text TEXT,
     custom_css TEXT,
-    show_powered_by INTEGER NOT NULL DEFAULT 0
+    show_powered_by BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE "status_page_cname" (

@@ -13,7 +13,6 @@ const rl = readline.createInterface({
 });
 
 const main = async () => {
-    Database.init(args);
     await Database.connect();
 
     try {

@@ -1043,8 +1043,8 @@ class Monitor extends BeanModel {
             SELECT
                 SUM(
                     CASE
-                        WHEN ((extract(julian from timestamp 'NOW()') - extract(julian from timestamp '${startTime}')) * 86400) < duration
-                        THEN ((extract(julian from timestamp 'NOW()') - extract(julian from timestamp '${startTime}')) * 86400)
+                        WHEN ((extract(julian from CURRENT_TIMESTAMP::timestamp) - extract(julian from timestamp '${startTime}')) * 86400) < duration
+                        THEN ((extract(julian from CURRENT_TIMESTAMP::timestamp) - extract(julian from timestamp '${startTime}')) * 86400)
                         ELSE duration
                     END
                 ) AS total_duration,
@@ -1053,8 +1053,8 @@ class Monitor extends BeanModel {
                         WHEN (status = 1 OR status = 3)
                         THEN
                             CASE
-                                WHEN ((extract(julian from timestamp 'NOW()') - extract(julian from timestamp '${startTime}')) * 86400) < duration
-                                THEN ((extract(julian from timestamp 'NOW()') - extract(julian from timestamp '${startTime}')) * 86400)
+                                WHEN ((extract(julian from CURRENT_TIMESTAMP::timestamp) - extract(julian from timestamp '${startTime}')) * 86400) < duration
+                                THEN ((extract(julian from CURRENT_TIMESTAMP::timestamp) - extract(julian from timestamp '${startTime}')) * 86400)
                                 ELSE duration
                             END
                         END

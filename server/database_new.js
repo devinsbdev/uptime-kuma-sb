@@ -14,25 +14,17 @@ const { startsWith } = require("lodash");
  * Database & App Data Folder
  */
 class Database {
-
-    static templatePath = "./db/kuma.db";
-
     /**
      * Data Dir (Default: ./data)
      */
-    static dataDir;
+    static dataDir = process.env.DATA_DIR || args["data-dir"] || "./data/";
 
     /**
      * User Upload Dir (Default: ./data/upload)
      */
-    static uploadDir;
+    static uploadDir = Database.dataDir + "upload/";
 
-    static path;
-
-    /**
-     * @type {boolean}
-     */
-    static patched = true;
+    // static path;
 
     /**
      * Add patch filename in key
@@ -41,84 +33,69 @@ class Database {
      *      false: Do nothing
      *      { parents: []}: Need parents before add it
      */
-    static patchList = {
-        "patch-setting-value-type.sql": true,
-        // "patch-improve-performance.sql": true,
-        "patch-2fa.sql": true,
-        "patch-add-retry-interval-monitor.sql": true,
-        "patch-incident-table.sql": true,
-        "patch-group-table.sql": true,
-        "patch-monitor-push_token.sql": true,
-        "patch-http-monitor-method-body-and-headers.sql": true,
-        "patch-2fa-invalidate-used-token.sql": true,
-        "patch-notification_sent_history.sql": true,
-        "patch-monitor-basic-auth.sql": true,
-        "patch-add-docker-columns.sql": true,
-        "patch-status-page.sql": true,
-        "patch-proxy.sql": true,
-        "patch-monitor-expiry-notification.sql": true,
-        "patch-status-page-footer-css.sql": true,
-        "patch-added-mqtt-monitor.sql": true,
-        "patch-add-clickable-status-page-link.sql": true,
-        "patch-add-sqlserver-monitor.sql": true,
-        "patch-add-smtp-monitor.sql": true,
-        "patch-add-smtp-monitor-2.sql": true,
-        "patch-add-other-auth.sql": { parents: [ "patch-monitor-basic-auth.sql" ] },
-        "patch-grpc-monitor.sql": true,
-        "patch-add-radius-monitor.sql": true,
-        "patch-monitor-add-resend-interval.sql": true,
-        "patch-ping-packet-size.sql": true,
-        "patch-maintenance-table2.sql": true,
-        "patch-add-gamedig-monitor.sql": true,
-        "patch-add-google-analytics-status-page-tag.sql": true,
-        "patch-http-body-encoding.sql": true,
-        "patch-add-description-monitor.sql": true,
-        "patch-api-key-table.sql": true,
-        "patch-monitor-tls.sql": true,
-        "patch-maintenance-cron.sql": true,
-    };
+    // static patchList = {
+    //     "patch-setting-value-type.sql": true,
+    //     // "patch-improve-performance.sql": true,
+    //     "patch-2fa.sql": true,
+    //     "patch-add-retry-interval-monitor.sql": true,
+    //     "patch-incident-table.sql": true,
+    //     "patch-group-table.sql": true,
+    //     "patch-monitor-push_token.sql": true,
+    //     "patch-http-monitor-method-body-and-headers.sql": true,
+    //     "patch-2fa-invalidate-used-token.sql": true,
+    //     "patch-notification_sent_history.sql": true,
+    //     "patch-monitor-basic-auth.sql": true,
+    //     "patch-add-docker-columns.sql": true,
+    //     "patch-status-page.sql": true,
+    //     "patch-proxy.sql": true,
+    //     "patch-monitor-expiry-notification.sql": true,
+    //     "patch-status-page-footer-css.sql": true,
+    //     "patch-added-mqtt-monitor.sql": true,
+    //     "patch-add-clickable-status-page-link.sql": true,
+    //     "patch-add-sqlserver-monitor.sql": true,
+    //     "patch-add-smtp-monitor.sql": true,
+    //     "patch-add-smtp-monitor-2.sql": true,
+    //     "patch-add-other-auth.sql": { parents: [ "patch-monitor-basic-auth.sql" ] },
+    //     "patch-grpc-monitor.sql": true,
+    //     "patch-add-radius-monitor.sql": true,
+    //     "patch-monitor-add-resend-interval.sql": true,
+    //     "patch-ping-packet-size.sql": true,
+    //     "patch-maintenance-table2.sql": true,
+    //     "patch-add-gamedig-monitor.sql": true,
+    //     "patch-add-google-analytics-status-page-tag.sql": true,
+    //     "patch-http-body-encoding.sql": true,
+    //     "patch-add-description-monitor.sql": true,
+    //     "patch-api-key-table.sql": true,
+    //     "patch-monitor-tls.sql": true,
+    //     "patch-maintenance-cron.sql": true,
+    // };
 
     /**
      * The final version should be 10 after merged tag feature
-     * @deprecated Use patchList for any new feature
+    //  * @deprecated Use patchList for any new feature
      */
-    static latestVersion = 10;
+    // static latestVersion = 10;
 
     static noReject = true;
 
+    static dbHost = process.env.DATABASE_HOST;
+    static dbPort = process.env.DATABASE_PORT;
+    static dbName = process.env.DATABASE_NAME;
+    static dbPass = process.env.DATABASE_PASS;
+    static dbUser = process.env.DATABASE_USER;
+
     /**
      * Initialize the database
-     * @param {Object} args Arguments to initialize DB with
+    //  * @param {Object} args Arguments to initialize DB with
      */
-    static async init(args) {
+    // static async init(args) {
 
-        // Database.client = new Client();
-
-        Database.dataDir = './data/';
-
-        // Data Directory (must be end with "/")
-        // Database.dataDir = process.env.DATA_DIR || args["data-dir"] || "./data/";
-
-        // Plugin feature is working only if the dataDir = "./data";
-        // if (Database.dataDir !== "./data/") {
-        //     log.warn("PLUGIN", "Warning: In order to enable plugin feature, you need to use the default data directory: ./data/");
-        //     PluginsManager.disable = true;
-        // }
-
-        // Database.path = Database.dataDir + "kuma.db";
-        // if (! fs.existsSync(Database.dataDir)) {
-        //     fs.mkdirSync(Database.dataDir, { recursive: true });
-        // }
-
-        Database.uploadDir = Database.dataDir + "upload/";
-
-        if (! fs.existsSync(Database.uploadDir)) {
-            fs.mkdirSync(Database.uploadDir, { recursive: true });
-        }
+    //     // Data Directory (must be end with "/")
+    //     Database.dataDir = process.env.DATA_DIR || args["data-dir"] || "./data/";
+    //     Database.uploadDir = Database.dataDir + "upload/";
         
-        
-        log.info("db", `Data Dir: ${Database.dataDir}`);
-    }
+    //     log.info("db", `Data Dir: ${Database.dataDir}`);
+    // }
 
     /**
      * Connect to the database
@@ -133,23 +110,20 @@ class Database {
         
         const acquireConnectionTimeout = 120 * 1000;
 
-        // const Dialect = require("knex/lib/dialects/sqlite3/index.js");
-        // Dialect.prototype._driver = () => require("@louislam/sqlite3");
-
         const knexInstance = knex({
             client: 'pg',
             connection: {
-                host : '10.7.64.200',
-                port : 5435,
-                user : 'postgres',
-                password : 'postgres-pass!',
-                database : 'another-one',
+                host : Database.dbHost,
+                port : Database.dbPort,
+                user : Database.dbUser,
+                password : Database.dbPass,
+                database : Database.dbName,
                 acquireConnectionTimeout: acquireConnectionTimeout
             },
             pool: {
                 min: 1,
                 max: 10,
-                idleTimeoutMillis: 120 * 1000,
+                idleTimeoutMillis: acquireConnectionTimeout,
                 propagateCreateError: false,
                 acquireTimeoutMillis: acquireConnectionTimeout,
             },
@@ -161,282 +135,30 @@ class Database {
             R.debug(true);
         }
 
+        if (process.env.DEV_DEBUG === "1") {
+            R.devDebug = true;
+        }
+
         // Auto map the model to a bean object
         R.freeze(true);
 
         if (autoloadModels) {
-            await R.autoloadModels("./server/model");
-        }
-
-        // await R.exec("PRAGMA foreign_keys = ON");
-        // if (testMode) {
-        //     // Change to MEMORY
-        //     await R.exec("PRAGMA journal_mode = MEMORY");
-        // } else {
-        //     // Change to WAL
-        //     await R.exec("PRAGMA journal_mode = WAL");
-        // }
-        // await R.exec("PRAGMA cache_size = -12000");
-        // await R.exec("PRAGMA auto_vacuum = FULL");
-
-        // This ensures that an operating system crash or power failure will not corrupt the database.
-        // FULL synchronous is very safe, but it is also slower.
-        // Read more: https://sqlite.org/pragma.html#pragma_synchronous
-        // await R.exec("PRAGMA synchronous = FULL");
-
-        // if (!noLog) {
-        //     log.info("db", "SQLite config:");
-        //     log.info("db", await R.getAll("PRAGMA journal_mode"));
-        //     log.info("db", await R.getAll("PRAGMA cache_size"));
-        //     log.info("db", "SQLite Version: " + await R.getCell("SELECT sqlite_version()"));
-        // }
-    }
-
-    /** Patch the database */
-    static async patch() {
-        let version = parseInt(await setting("database_version"));
-
-        if (! version) {
-            version = 0;
-        }
-
-        log.info("db", "Your database version: " + version);
-        log.info("db", "Latest database version: " + this.latestVersion);
-
-        if (version === this.latestVersion) {
-            log.info("db", "Database patch not needed");
-        } else if (version > this.latestVersion) {
-            log.info("db", "Warning: Database version is newer than expected");
-        } else {
-            log.info("db", "Database patch is needed");
-
-            // Try catch anything here
-            try {
-                for (let i = version + 1; i <= this.latestVersion; i++) {
-                    const sqlFile = `./db/patch${i}.sql`;
-                    log.info("db", `Patching ${sqlFile}`);
-                    await Database.importSQLFile(sqlFile);
-                    log.info("db", `Patched ${sqlFile}`);
-                    await setSetting("database_version", i);
-                }
-            } catch (ex) {
-                await Database.close();
-
-                log.error("db", ex);
-                log.error("db", "Start Uptime-Kuma failed due to issue patching the database");
-                log.error("db", "Please submit a bug report if you still encounter the problem after restart: https://github.com/louislam/uptime-kuma/issues");
-
-                process.exit(1);
-            }
-        }
-
-        // await this.patch2();
-        // await this.migrateNewStatusPage();
-    }
-
-    /**
-     * Patch DB using new process
-     * Call it from patch() only
-     * @private
-     * @returns {Promise<void>}
-     */
-    static async patch2() {
-        log.info("db", "Database Patch 2.0 Process");
-        let databasePatchedFiles = await setting("databasePatchedFiles");
-
-        if (! databasePatchedFiles) {
-            databasePatchedFiles = {};
-        }
-
-        log.debug("db", "Patched files:");
-        log.debug("db", databasePatchedFiles);
-
-        try {
-            for (let sqlFilename in this.patchList) {
-                await this.patch2Recursion(sqlFilename, databasePatchedFiles);                
-            }
-
-            if (this.patched) {
-                log.info("db", "Database Patched Successfully");
-            }
-
-        } catch (ex) {
-            await Database.close();
-            log.error("db", ex);
-            log.error("db", "Start Uptime-Kuma failed due to issue patching the database");
-            log.error("db", "Please submit the bug report if you still encounter the problem after restart: https://github.com/louislam/uptime-kuma/issues");
-            
-            process.exit(1);
-        }
-
-        await setSetting("databasePatchedFiles", databasePatchedFiles);
-    }
-
-    /**
-     * Migrate status page value in setting to "status_page" table
-     * @returns {Promise<void>}
-     */
-    static async migrateNewStatusPage() {
-
-        // Fix 1.13.0 empty slug bug
-        await R.exec("UPDATE ?? SET ?? = ? WHERE TRIM(?) = ?", [
-            'status_page',
-            'slug',
-            'empty-slug-recover',
-            'slug',
-            ''
-        ]);
-
-        let title = await setting("title");
-
-        if (title) {
-            console.log("Migrating Status Page");
-
-            let statusPageCheck = await R.findOne("status_page", " ?? = ? ", [
-                'slug',
-                'default'
-            ]);
-
-            if (statusPageCheck !== null) {
-                console.log("Migrating Status Page - Skip, default slug record is already existing");
-                return;
-            }
-
-            let statusPage = R.dispense("status_page");
-            statusPage.slug = "default";
-            statusPage.title = title;
-            statusPage.description = await setting("description");
-            statusPage.icon = await setting("icon");
-            statusPage.theme = await setting("statusPageTheme");
-            statusPage.published = !!await setting("statusPagePublished");
-            statusPage.search_engine_index = !!await setting("searchEngineIndex");
-            statusPage.show_tags = !!await setting("statusPageTags");
-            statusPage.password = null;
-
-            if (!statusPage.title) {
-                statusPage.title = "My Status Page";
-            }
-
-            if (!statusPage.icon) {
-                statusPage.icon = "";
-            }
-
-            if (!statusPage.theme) {
-                statusPage.theme = "light";
-            }
-
-            let id = await R.store(statusPage);
-
-            
-            await R.exec("UPDATE ?? SET ?? = ? WHERE ?? IS NULL", [
-                'incident',
-                'status_page_id',
-                id,
-                'status_page_id'
-            ]);
-
-            await R.exec("UPDATE [??] SET ?? = ? WHERE ?? IS NULL", [
-                'group',
-                'status_page_id',
-                'status_page_id',
-                id
-            ]);
-
-            await R.exec("DELETE FROM ?? WHERE ?? = ?", [
-                'setting',
-                'type',
-                'statusPage'
-            ]);
-
-            // Migrate Entry Page if it is status page
-            let entryPage = await setting("entryPage");
-
-            if (entryPage === "statusPage") {
-                await setSetting("entryPage", "statusPage-default", "general");
-            }
-
-            console.log("Migrating Status Page - Done");
-        }
-
-    }
-
-    /**
-     * Patch database using new patching process
-     * Used it patch2() only
-     * @private
-     * @param sqlFilename
-     * @param databasePatchedFiles
-     * @returns {Promise<void>}
-     */
-    static async patch2Recursion(sqlFilename, databasePatchedFiles) {
-        let value = this.patchList[sqlFilename];
-
-        if (! value) {
-            log.info("db", sqlFilename + " skip");
-            return;
-        }
-
-        // Check if patched
-        if (! databasePatchedFiles[sqlFilename]) {
-            log.info("db", sqlFilename + " is not patched");
-
-            if (value.parents) {
-                log.info("db", sqlFilename + " need parents");
-                for (let parentSQLFilename of value.parents) {
-                    await this.patch2Recursion(parentSQLFilename, databasePatchedFiles);
-                }
-            }
-
-            log.info("db", sqlFilename + " is patching");
-            this.patched = true;
-            await this.importSQLFile("./db/" + sqlFilename);
-            databasePatchedFiles[sqlFilename] = true;
-            log.info("db", sqlFilename + " was patched successfully");
-
-        } else {
-            log.debug("db", sqlFilename + " is already patched, skip");
+            R.autoloadModels("./server/model");
         }
     }
 
-    /**
-     * Load an SQL file and execute it
-     * @param filename Filename of SQL file to import
-     * @returns {Promise<void>}
-     */
-    static async importSQLFile(filename) {
-        // Sadly, multi sql statements is not supported by many sqlite libraries, I have to implement it myself
-        // await R.getCell("SELECT 1", [], false);
-
-        let text = fs.readFileSync(filename).toString();
-
-        // Remove all comments (--)
-        let lines = text.split("\n");
-        lines = lines.filter((line) => {
-            return ! line.startsWith("--");
-        });
-
-        // Split statements by semicolon
-        // Filter out empty line
-        text = lines.join("\n");
-
-        let statements = text.split(";")
-            .map((statement) => {
-                return statement.trim();
-            })
-            .filter((statement) => {
-                return statement !== "";
-            });
-
-        for (let statement of statements) {
-            await R.exec(statement);
-        }
+    /** get db nfo */
+    static async getDbVersion() {
+        let raw = await R.exec('SELECT version();');
+        let ver = raw.version.split(',')[0];
+        return ver;
     }
 
     /**
      * Aquire a direct connection to database
      * @returns {any}
      */
-    static getBetterSQLite3Database() {
+    static getDirectDatabaseConnection() {
         return R.knex.client.acquireConnection();
     }
 
@@ -452,9 +174,6 @@ class Database {
 
         log.info("db", "Closing the database");
 
-        // Flush WAL to main database
-        // await R.exec("PRAGMA wal_checkpoint(TRUNCATE)");
-
         while (true) {
             Database.noReject = true;
             await R.close();
@@ -466,18 +185,17 @@ class Database {
                 log.info("db", "Waiting to close the database");
             }
         }
-        // log.info("db", "SQLite closed");
+        log.info("db", "PostgreSQL closed!");
 
         process.removeListener("unhandledRejection", listener);
     }
 
     /** Get the size of the database */
-    static getSize() {
-        // log.debug("db", "Database.getSize()");
-        // let stats = fs.statSync(Database.path);
-        // log.debug("db", stats);
-        // return stats.size;
-        return NaN
+    static async getSize(table = 'all') {
+        log.debug("db", "Database.getSize()");
+        let dbsize = await R.getCell('SELECT pg_size_pretty(pg_database_size(?));', [ Database.dbName], false);
+        log.debug("db", dbsize);
+        return dbsize;
     }
 
     /**
@@ -485,8 +203,17 @@ class Database {
      * @returns {Promise<void>}
      */
     static async shrink() {
-        // await R.exec("VACUUM");
-        await sleep(100)
+        await R.getCell("VACUUM", [], false);
+        await sleep(500);
+    }
+    
+    /**
+     * Shring the database (FULL)
+     * @returns {Promise<void}
+    */
+   static async shrinkFull() {
+       await R.getCell('VACUUM FULL', [], false)
+       await sleep(500);
     }
 }
 
