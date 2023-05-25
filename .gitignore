@@ -7,12 +7,13 @@ dist-ssr
 /db/converted/
 /data/*.db
 /data/*.log
-/data/upload/
+/data/upload/*
 /db/*.db
 /data/kuma.db-shm
 /data/kuma.db-wal
 /data/plugins/smtp-monitor/node_modules
-/data/plugins/smtp-monitor/services/*.json
+/data/plugins/smtp-monitor/services/AAD.json
+/data/plugins/smtp-monitor/services/graph_message.json
 !/data/.gitkeep
 .vscode
 /microsoft-authentication-library-for-js

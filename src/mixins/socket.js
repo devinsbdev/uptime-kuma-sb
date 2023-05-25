@@ -729,7 +729,7 @@ export default {
         /**
          *  Frontend Version
          *  It should be compiled to a static value while building the frontend.
-         *  Please see ./config/vite.config.js, it is defined via vite.js
+         *  Please see ./.config/vite.config.js, it is defined via vite.js
          * @returns {string}
          */
         frontendVersion() {

@@ -1,3 +1,4 @@
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const { log } = require("../src/util");
 const Alerta = require("./notification-providers/alerta");

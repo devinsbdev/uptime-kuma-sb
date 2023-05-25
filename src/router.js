@@ -126,10 +126,10 @@ const routes = [
                                 path: "proxies",
                                 component: Proxies,
                             },
-                            {
-                                path: "backup",
-                                component: Backup,
-                            },
+                            // {
+                            //     path: "backup",
+                            //     component: Backup,
+                            // },
                             {
                                 path: "plugins",
                                 component: Plugins,

@@ -1,10 +1,9 @@
+const Database = require("../../server/database");
 const { R } = require("redbean-node");
 const { checkLogin, setSetting } = require("../util-server");
 const dayjs = require("dayjs");
 const { log } = require("../../src/util");
 const ImageDataURI = require("../image-data-uri");
-// const Database = require("../database");
-const Database = require("../database_new");
 const apicache = require("../modules/apicache");
 const StatusPage = require("../model/status_page");
 const { UptimeKumaServer } = require("../uptime-kuma-server");
@@ -210,7 +209,7 @@ module.exports.statusPageSocketHandler = (socket) => {
                 groupBean.weight = groupOrder++;
 
                 await R.store(groupBean);
-                
+
                 if (!groupBean.id) {
                     groupBean = await R.findOne("group", "status_page_Id = ? AND name = ?", [
                         statusPage.id,

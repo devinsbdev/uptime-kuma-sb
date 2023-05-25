@@ -62,7 +62,9 @@ CREATE TABLE "proxy" (
     auth BOOLEAN NOT NULL,
     username VARCHAR(255) NULL,
     password VARCHAR(255) NULL,
-    active BOOLEAN NOT NULL DEFAULT true,    "default" BOOLEAN NOT NULL DEFAULT false,    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP::timestamp NOT NULL
+    active BOOLEAN NOT NULL DEFAULT false,
+    default BOOLEAN NOT NULL DEFAULT false,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP::timestamp NOT NULL
 );
 
 CREATE TABLE "monitor" (
@@ -259,7 +261,7 @@ CREATE TABLE "heartbeat" (
 CREATE TABLE "notification" (
   id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(255),
-  config VARCHAR(255),
+  config TEXT,
   active BOOLEAN NOT NULL DEFAULT true,  user_id INTEGER NOT NULL,
   is_default BOOLEAN default false NOT NULL
 );

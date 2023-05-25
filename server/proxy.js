@@ -1,3 +1,4 @@
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const HttpProxyAgent = require("http-proxy-agent");
 const HttpsProxyAgent = require("https-proxy-agent");
@@ -57,7 +58,7 @@ class Proxy {
         bean.auth = proxy.auth;
         bean.username = proxy.username;
         bean.password = proxy.password;
-        bean.active = proxy.active || true;
+        bean.active = proxy.active;
         bean.default = proxy.default || false;
 
         await R.store(bean);
@@ -87,7 +88,7 @@ class Proxy {
         await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ?", [
             'monitor',
             'proxy_id',
-            'null',
+            null,
             'proxy_id',
             proxyID
         ]);
@@ -195,12 +196,12 @@ class Proxy {
 async function applyProxyEveryMonitor(proxyID, userID) {
     // Find all monitors with id and proxy id
     const monitors = await R.getAll("SELECT ??, ?? FROM ?? WHERE ?? = ?", [
-            'id',
-            'proxy_id',
-            'monitor',
-            'user_id',
-            userID 
-        ]);
+        'id',
+        'proxy_id',
+        'monitor',
+        'user_id',
+        userID
+    ]);
 
     // Update proxy id not match with given proxy id
     for (const monitor of monitors) {
@@ -208,7 +209,7 @@ async function applyProxyEveryMonitor(proxyID, userID) {
             await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ?", [
                 'monitor',
                 'proxy_id',
-                proxyID, 
+                proxyID,
                 'id',
                 monitor.id
             ]);

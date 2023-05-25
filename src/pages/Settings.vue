@@ -113,9 +113,9 @@ export default {
                 proxies: {
                     title: this.$t("Proxies"),
                 },
-                backup: {
-                    title: this.$t("Backup"),
-                },
+                // backup: {
+                //     title: this.$t("Backup"),
+                // },
                 plugins: {
                     title: this.$tc("plugin", 2),
                 },

@@ -11,7 +11,7 @@
                             <div class="my-3">
                                 <label for="type" class="form-label">{{ $t("Monitor Type") }}</label>
                                 <select id="type" v-model="monitor.type" class="form-select">
-                                    <optgroup :label="$t('General Monitor Type')">
+                                    <optgroup :label="$t('===== General Monitor Type =====')">
                                         <option value="http">
                                             HTTP(s)
                                         </option>
@@ -35,13 +35,13 @@
                                         </option>
                                     </optgroup>
 
-                                    <optgroup :label="$t('Passive Monitor Type')">
+                                    <optgroup :label="$t('===== Passive Monitor Type =====')">
                                         <option value="push">
                                             Push
                                         </option>
                                     </optgroup>
 
-                                    <optgroup :label="$t('Specific Monitor Type')">
+                                    <optgroup :label="$t('===== Specific Monitor Type =====')">
                                         <option value="steam">
                                             {{ $t("Steam Game Server") }}
                                         </option>
@@ -71,7 +71,7 @@
                                         </option>
                                     </optgroup>
 
-                                    <optgroup :label="$t('Devin\'s Monitors')">
+                                    <optgroup :label="$t('===== Plugins =====')">
                                         <option value="smtp">
                                             SMTP (nodemailer)
                                         </option>
@@ -146,7 +146,7 @@
                                 <input id="port" v-model="monitor.port" type="number" class="form-control" required min="0" max="65535" step="1">
                             </div>
 
-                            <template v-if="monitor.type === 'smtp'" class="my-3">
+                            <template v-if="monitor.type === 'smtp'">
                                 <div class="my-3">
                                     <label for="smtpfrom" class="form-label">{{ $t("From") }}</label>
                                     <input id="smtpfrom" v-model="monitor.smtpfrom" type="text" class="form-control" required> <!-- :pattern="`${monitor.type === 'mqtt' ? mqttIpOrHostnameRegexPattern : emailRegexPattern}`" required> -->

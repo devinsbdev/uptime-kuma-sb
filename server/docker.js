@@ -1,4 +1,5 @@
 const axios = require("axios");
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const version = require("../package.json").version;
 const https = require("https");
@@ -52,7 +53,7 @@ class DockerHost {
         await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ?", [ 
             'monitor',
             'docker_host',
-            'null',
+            null,
             'docker_host',
             dockerHostID
         ]);

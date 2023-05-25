@@ -3,10 +3,10 @@ const https = require("https");
 const fs = require("fs");
 const http = require("http");
 const { Server } = require("socket.io");
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const { log } = require("../src/util");
-// const Database = require("./database");
-const Database = require("../server/database_new");
+const Database = require("./database");
 const util = require("util");
 const { CacheableDnsHttpAgent } = require("./cacheable-dns-http-agent");
 const { Settings } = require("./settings");
@@ -259,7 +259,8 @@ class UptimeKumaServer {
      * @returns {Promise<string>}
      */
     async getTimezone() {
-        let timezone = await Settings.get("serverTimezone");
+        // let timezone = await Settings.get("serverTimezone");
+        let timezone = process.env.TZ;
         if (timezone) {
             return timezone;
         } else if (process.env.TZ) {

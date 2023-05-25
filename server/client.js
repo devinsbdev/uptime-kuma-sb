@@ -2,6 +2,7 @@
  * For Client Socket
  */
 const { TimeLogger } = require("../src/util");
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const { UptimeKumaServer } = require("./uptime-kuma-server");
 const server = UptimeKumaServer.getInstance();

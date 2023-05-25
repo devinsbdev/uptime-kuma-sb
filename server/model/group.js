@@ -1,4 +1,5 @@
 const { BeanModel } = require("redbean-node/dist/bean-model");
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 
 class Group extends BeanModel {

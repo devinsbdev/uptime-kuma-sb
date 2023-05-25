@@ -1,3 +1,4 @@
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 
 class TwoFA {

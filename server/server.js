@@ -40,7 +40,7 @@ if (! process.env.NODE_ENV) {
 log.info("server", "Node Env: " + process.env.NODE_ENV);
 
 log.info("server", "Importing Node libraries");
-const fs = require("fs");
+// const fs = require("fs");
 
 log.info("server", "Importing 3rd-party libraries");
 
@@ -82,8 +82,7 @@ log.debug("server", "Importing Proxy");
 const { Proxy } = require("./proxy");
 
 log.debug("server", "Importing Database");
-// const Database = require("./database");
-const Database = require("../server/database_new");
+const Database = require("./database");
 
 log.debug("server", "Importing Background Jobs");
 const { initBackgroundJobs, stopBackgroundJobs } = require("./jobs");
@@ -653,9 +652,14 @@ let needSetup = false;
             try {
                 checkLogin(socket);
                 let bean = R.dispense("monitor");
-                if (!bean.port && bean.getType() === 'http') {
-                    bean.port = 443;
-                }
+                // if (!bean.port && bean.getType() === 'http') {
+                //     bean.port = 443;
+                // }
+
+                // if (!bean.port || bean.port === undefined) {
+                //     bean.port = null;
+                // }
+
                 let notificationIDList = monitor.notificationIDList;
                 delete monitor.notificationIDList;
 
@@ -669,11 +673,25 @@ let needSetup = false;
 
                 await R.store(bean);
 
+                // if (myId !== undefined) {
+                //     bean.id = myId;
+                // }
+                // if (!bean.id) {
+                //     bean = await R.findOne("monitor", "?? = ? AND ?? = ? AND ?? = ?", [
+                //         'user_id',
+                //         socket.userID,
+                //         'name',
+                //         monitor.name,
+                //         'hostname',
+                //         monitor.hostname
+                //     ]);
+                // }
                 await updateMonitorNotification(bean.id, notificationIDList);
 
                 await server.sendMonitorList(socket);
                 await startMonitor(socket.userID, bean.id);
 
+                monitor.id = bean.id;
                 log.info("monitor", `Added Monitor: ${monitor.id} User ID: ${socket.userID}`);
 
                 callback({
@@ -698,9 +716,12 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                if (!monitor.port && monitor.type === 'http') {
-                    monitor.port = 443;
-                }
+                // if (!monitor.port && monitor.type === 'http') {
+                //     monitor.port = 443;
+                // }
+                // if (!bean.port || bean.port === undefined) {
+                //     bean.port = null;
+                // }
 
                 let bean = await R.findOne("monitor", " ?? = ? ", [ 'id', monitor.id ]);
 
@@ -728,7 +749,7 @@ let needSetup = false;
                 bean.hostname = monitor.hostname;
                 bean.game = monitor.game;
                 bean.maxretries = monitor.maxretries;
-                bean.port = parseInt(monitor.port);
+                bean.port = parseInt(monitor.port) || null;
                 bean.keyword = monitor.keyword;
                 bean.ignoreTls = monitor.ignoreTls;
                 bean.expiryNotification = monitor.expiryNotification;
@@ -843,7 +864,7 @@ let needSetup = false;
                 if (period == null) {
                     throw new Error("Invalid period.");
                 } else if (period === 0) {
-                    period = 0.5
+                    period = 0.25;
                 }
 
                 let list = await R.getAll(`
@@ -854,7 +875,7 @@ let needSetup = false;
                 `, [
                     monitorID,
                 ]);
-                
+
                 // let list = await R.getAll(`
                 //     SELECT * FROM heartbeat
                 //     WHERE monitor_id = ? AND
@@ -1039,7 +1060,7 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                await R.exec("DELETE FROM ?? WHERE ?? = ? ", ['tag', 'id', tagID ]);
+                await R.exec("DELETE FROM ?? WHERE ?? = ? ", [ 'tag', 'id', tagID ]);
 
                 callback({
                     ok: true,
@@ -1327,20 +1348,20 @@ let needSetup = false;
                         let monitor = server.monitorList[id];
                         await monitor.stop();
                     }
-                    await R.exec("DELETE FROM ??", ['heartbeat']);
-                    await R.exec("DELETE FROM ??", ['monitor_notification']);
-                    await R.exec("DELETE FROM ??", ['monitor_tls_info']);
-                    await R.exec("DELETE FROM ??", ['notification']);
-                    await R.exec("DELETE FROM ??", ['monitor_tag']);
-                    await R.exec("DELETE FROM ??", ['tag']);
-                    await R.exec("DELETE FROM ??", ['monitor']);
-                    await R.exec("DELETE FROM ??", ['proxy']);
+                    await R.exec("DELETE FROM ??", [ 'heartbeat' ]);
+                    await R.exec("DELETE FROM ??", [ 'monitor_notification' ]);
+                    await R.exec("DELETE FROM ??", [ 'monitor_tls_info' ]);
+                    await R.exec("DELETE FROM ??", [ 'notification' ]);
+                    await R.exec("DELETE FROM ??", [ 'monitor_tag' ]);
+                    await R.exec("DELETE FROM ??", [ 'tag' ]);
+                    await R.exec("DELETE FROM ??", [ 'monitor' ]);
+                    await R.exec("DELETE FROM ??", [ 'proxy' ]);
                 }
 
                 // Only starts importing if the backup file contains at least one notification
                 if (notificationListData.length >= 1) {
                     // Get every existing notification name and puts them in one simple string
-                    let notificationNameList = await R.getAll("SELECT ?? FROM ??", ['name', 'notification']);
+                    let notificationNameList = await R.getAll("SELECT ?? FROM ??", [ 'name', 'notification' ]);
                     let notificationNameListString = JSON.stringify(notificationNameList);
 
                     for (let i = 0; i < notificationListData.length; i++) {
@@ -1473,8 +1494,8 @@ let needSetup = false;
                                     // Assign the new created tag to the monitor
                                     await R.exec("INSERT INTO ?? (??, ??, ??) VALUES (?, ?, ?)", [
                                         'monitor_tag',
-                                        'tag_id', 
-                                        'monitor_id', 
+                                        'tag_id',
+                                        'monitor_id',
                                         'value',
                                         tagId,
                                         bean.id,
@@ -1575,7 +1596,7 @@ let needSetup = false;
 
                 log.info("manage", `Clear Statistics User ID: ${socket.userID}`);
 
-                await R.exec("DELETE FROM ??", ['heartbeat']);
+                await R.exec("DELETE FROM ??", [ 'heartbeat' ]);
 
                 callback({
                     ok: true,
@@ -1832,7 +1853,7 @@ async function pauseMonitor(userID, monitorID) {
     await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? AND ?? = ? ", [
         'monitor',
         'active',
-        'true',
+        'false',
         'id',
         monitorID,
         'user_id',

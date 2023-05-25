@@ -1,12 +1,27 @@
 const { checkLogin } = require("../util-server");
-const Database = require("../database_new");
-// const Database = require("../database");
+const Database = require("../database");
 
 /**
  * Handlers for database
  * @param {Socket} socket Socket.io instance
  */
 module.exports = (socket) => {
+
+    // Get database info
+    socket.on("getDatabaseInfo", async (callback) => {
+        try {
+            checkLogin(socket);
+            callback({
+                ok: true,
+                info: await Database.getDbVersion()
+            });
+        } catch (err) {
+            callback({
+                ok: false,
+                info: err.message
+            });
+        }
+    });
 
     // Post or edit incident
     socket.on("getDatabaseSize", async (callback) => {
