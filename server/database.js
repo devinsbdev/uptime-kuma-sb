@@ -1,6 +1,7 @@
 const { R } = require("redbean-node");
 const { log, sleep } = require("../src/util");
 const knex = require("knex");
+const fs = require("fs");
 
 /**
  * Database & App Data Folder
@@ -71,6 +72,21 @@ class Database {
 
         if (autoloadModels) {
             R.autoloadModels("./server/model");
+        }
+
+        try {
+            let ok = await R.count("monitor", undefined, [], false);
+            if ((Number(ok) >= 0)) {
+                log.info("db", "Found an existing database to use, dbinit not needed.");
+            } else {
+                throw new Error("wtfff");
+            }
+        } catch (error) {
+            /* run database setup; it likely doesn't exist */
+            log.info("db", "Looks like database doesn't exist, we'll build out the necessary tables now ...")
+            const sql_script = fs.readFileSync('./db/pginit.sql', {'encoding': 'utf-8'});
+            const dbsetup_result = await R.exec(sql_script, []);
+            console.log(dbsetup_result);
         }
     }
 

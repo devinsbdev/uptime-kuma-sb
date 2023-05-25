@@ -23,7 +23,7 @@ BEGIN TRANSACTION;
 -- DROP TABLE IF EXISTS "incident";
 -- DROP TABLE IF EXISTS "status_page";
 
-CREATE TABLE "user" (
+CREATE TABLE IF NOT EXISTS "user" (
   id SERIAL PRIMARY KEY NOT NULL,
   username VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255),
@@ -34,7 +34,7 @@ CREATE TABLE "user" (
   twofa_last_token VARCHAR(8)
 );
 
-CREATE TABLE "api_key" (
+CREATE TABLE IF NOT EXISTS "api_key" (
     id SERIAL NOT NULL PRIMARY KEY,
     key VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE "api_key" (
     CONSTRAINT FK_user FOREIGN KEY (user_id) REFERENCES "user" (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE "docker_host" (
+CREATE TABLE IF NOT EXISTS "docker_host" (
 	id SERIAL NOT NULL PRIMARY KEY,
 	user_id INTEGER NOT NULL,
 	docker_daemon VARCHAR(255),
@@ -53,7 +53,7 @@ CREATE TABLE "docker_host" (
 	name VARCHAR(255)
 );
 
-CREATE TABLE "proxy" (
+CREATE TABLE IF NOT EXISTS "proxy" (
     id SERIAL NOT NULL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     protocol VARCHAR(10) NOT NULL,
@@ -63,11 +63,11 @@ CREATE TABLE "proxy" (
     username VARCHAR(255) NULL,
     password VARCHAR(255) NULL,
     active BOOLEAN NOT NULL DEFAULT false,
-    default BOOLEAN NOT NULL DEFAULT false,
+    "default" BOOLEAN NOT NULL DEFAULT false,
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP::timestamp NOT NULL
 );
 
-CREATE TABLE "monitor" (
+CREATE TABLE IF NOT EXISTS "monitor" (
         id serial not null primary key,
         name VARCHAR(150),
         active BOOLEAN DEFAULT true not null,
@@ -139,14 +139,14 @@ UPDATE "monitor"
 
 UPDATE "monitor" SET http_body_encoding = 'json' WHERE (type = 'http' or type = 'keyword') AND http_body_encoding IS NULL;
 
-CREATE TABLE "setting" (
+CREATE TABLE IF NOT EXISTS "setting" (
   id SERIAL PRIMARY KEY NOT NULL,
   key VARCHAR(255) NOT NULL UNIQUE,
   value TEXT,
   type VARCHAR(64)
 );
 
-CREATE TABLE "group" (
+CREATE TABLE IF NOT EXISTS "group" (
     id           SERIAL      not null
         constraint group_pk
             primary key,
@@ -158,7 +158,7 @@ CREATE TABLE "group" (
     status_page_id INTEGER
 );
 
-CREATE TABLE "monitor_group"
+CREATE TABLE IF NOT EXISTS "monitor_group"
 (
     id         SERIAL PRIMARY KEY NOT NULL,
     monitor_id INTEGER NOT NULL REFERENCES "monitor" (id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -167,7 +167,7 @@ CREATE TABLE "monitor_group"
     weight INTEGER NOT NULL DEFAULT 1000
 );
 
-CREATE TABLE "status_page" (
+CREATE TABLE IF NOT EXISTS "status_page" (
     id SERIAL PRIMARY KEY NOT NULL,
     slug VARCHAR(255) NOT NULL UNIQUE,
     title VARCHAR(255) NOT NULL,
@@ -184,13 +184,13 @@ CREATE TABLE "status_page" (
     show_powered_by BOOLEAN NOT NULL DEFAULT false
 );
 
-CREATE TABLE "status_page_cname" (
+CREATE TABLE IF NOT EXISTS "status_page_cname" (
     id SERIAL PRIMARY KEY NOT NULL,
     status_page_id INTEGER NOT NULL REFERENCES "status_page" (id) ON DELETE CASCADE ON UPDATE CASCADE,
     domain VARCHAR NOT NULL UNIQUE
 );
 
-CREATE TABLE "maintenance" (
+CREATE TABLE IF NOT EXISTS "maintenance" (
     id SERIAL PRIMARY KEY NOT NULL,
     title VARCHAR(150) NOT NULL,
     description TEXT NOT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE "maintenance" (
     duration INTEGER
 );
 
-CREATE TABLE "maintenance_status_page" (
+CREATE TABLE IF NOT EXISTS "maintenance_status_page" (
     id SERIAL NOT NULL PRIMARY KEY,
     status_page_id INTEGER NOT NULL,
     maintenance_id INTEGER NOT NULL,
@@ -216,7 +216,7 @@ CREATE TABLE "maintenance_status_page" (
     CONSTRAINT FK_status_page FOREIGN KEY (status_page_id) REFERENCES "status_page" (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE "maintenance_timeslot" (
+CREATE TABLE IF NOT EXISTS "maintenance_timeslot" (
     id SERIAL PRIMARY KEY NOT NULL,
     maintenance_id INTEGER NOT NULL CONSTRAINT FK_maintenance REFERENCES "maintenance" (id) ON DELETE CASCADE ON UPDATE CASCADE,
     start_date TIMESTAMP NOT NULL,
@@ -224,7 +224,7 @@ CREATE TABLE "maintenance_timeslot" (
     generated_next INTEGER DEFAULT 0
 );
 
-CREATE TABLE "monitor_maintenance" (
+CREATE TABLE IF NOT EXISTS "monitor_maintenance" (
     id SERIAL NOT NULL PRIMARY KEY,
     monitor_id INTEGER NOT NULL,
     maintenance_id INTEGER NOT NULL,
@@ -232,7 +232,7 @@ CREATE TABLE "monitor_maintenance" (
     CONSTRAINT FK_monitor FOREIGN KEY (monitor_id) REFERENCES "monitor" (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE "incident" (
+CREATE TABLE IF NOT EXISTS "incident" (
     id SERIAL not null
         constraint incident_pk
             primary key,
@@ -246,7 +246,7 @@ CREATE TABLE "incident" (
     status_page_id INTEGER
 );
 
-CREATE TABLE "heartbeat" (
+CREATE TABLE IF NOT EXISTS "heartbeat" (
   id SERIAL PRIMARY KEY NOT NULL,
   important BOOLEAN NOT NULL DEFAULT false,  
   monitor_id INTEGER NOT NULL REFERENCES "monitor" (id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -255,10 +255,10 @@ CREATE TABLE "heartbeat" (
   time TIMESTAMP NOT NULL,
   ping INTEGER,
   duration INTEGER NOT NULL DEFAULT 0,
-  down_count INTEGER NOT NULL DEFAULT 0;
+  down_count INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE TABLE "notification" (
+CREATE TABLE IF NOT EXISTS "notification" (
   id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(255),
   config TEXT,
@@ -266,7 +266,7 @@ CREATE TABLE "notification" (
   is_default BOOLEAN default false NOT NULL
 );
 
-CREATE TABLE "notification_sent_history" (
+CREATE TABLE IF NOT EXISTS "notification_sent_history" (
     id SERIAL PRIMARY KEY NOT NULL,
     type VARCHAR(50) NOT NULL,
     monitor_id INTEGER NOT NULL,
@@ -274,27 +274,27 @@ CREATE TABLE "notification_sent_history" (
     UNIQUE(type, monitor_id, days)
 );
 
-CREATE TABLE "monitor_notification" (
+CREATE TABLE IF NOT EXISTS "monitor_notification" (
   id SERIAL PRIMARY KEY NOT NULL,
   monitor_id INTEGER NOT NULL REFERENCES "monitor" (id) ON DELETE CASCADE ON UPDATE CASCADE,
   notification_id INTEGER NOT NULL REFERENCES "notification" (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE "monitor_tls_info" (
+CREATE TABLE IF NOT EXISTS "monitor_tls_info" (
 	id SERIAL NOT NULL PRIMARY KEY,
   monitor_id INTEGER NOT NULL REFERENCES "monitor" (id) ON DELETE CASCADE,
 	-- monitor_id INTEGER NOT NULL,
 	info_json TEXT
 );
 
-CREATE TABLE "tag" (
+CREATE TABLE IF NOT EXISTS "tag" (
 	id SERIAL NOT NULL PRIMARY KEY,
 	"name" VARCHAR(255) NOT NULL,
   color VARCHAR(255) NOT NULL,
 	created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP::timestamp NOT NULL
 );
 
-CREATE TABLE "monitor_tag" (
+CREATE TABLE IF NOT EXISTS "monitor_tag" (
 	id SERIAL NOT NULL PRIMARY KEY,
 	monitor_id INTEGER NOT NULL,
 	tag_id INTEGER NOT NULL,
