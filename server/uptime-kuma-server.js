@@ -3,6 +3,7 @@ const https = require("https");
 const fs = require("fs");
 const http = require("http");
 const { Server } = require("socket.io");
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const { log } = require("../src/util");
 const Database = require("./database");
@@ -184,8 +185,9 @@ class UptimeKumaServer {
      * @returns {Promise<void>}
      */
     async loadMaintenanceList(userID) {
-        let maintenanceList = await R.findAll("maintenance", " ORDER BY end_date DESC, title", [
-
+        let maintenanceList = await R.findAll("maintenance", " ORDER BY ?? DESC, ??", [
+            'end_date',
+            'title'
         ]);
 
         for (let maintenance of maintenanceList) {
@@ -257,7 +259,8 @@ class UptimeKumaServer {
      * @returns {Promise<string>}
      */
     async getTimezone() {
-        let timezone = await Settings.get("serverTimezone");
+        // let timezone = await Settings.get("serverTimezone");
+        let timezone = process.env.TZ;
         if (timezone) {
             return timezone;
         } else if (process.env.TZ) {

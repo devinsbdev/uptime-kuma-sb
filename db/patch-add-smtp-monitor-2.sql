@@ -1,6 +1,0 @@
-BEGIN TRANSACTION;
-
-ALTER TABLE monitor
-    ADD last_result VARCHAR(255);
-
-COMMIT

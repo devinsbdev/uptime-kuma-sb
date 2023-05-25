@@ -235,17 +235,9 @@ describe("The function filterAndJoin", () => {
 
 describe("Test uptimeKumaServer.getClientIP()", () => {
     it("should able to get a correct client IP", async () => {
-        Database.init({
-            "data-dir": "./data/test"
-        });
-
-        if (! fs.existsSync(Database.path)) {
-            log.info("server", "Copying Database");
-            fs.copyFileSync(Database.templatePath, Database.path);
-        }
 
         await Database.connect(true);
-        await Database.patch();
+        // await Database.patch();
 
         const fakeSocket = {
             client: {

@@ -8,6 +8,7 @@ const { log, UP, DOWN, PENDING, MAINTENANCE, flipStatus, TimeLogger, MAX_INTERVA
 const { tcping, ping, dnsResolve, checkCertificate, checkStatusCode, getTotalClientInRoom, setting, mssqlQuery, postgresQuery, mysqlQuery, mqttAsync, setSetting, httpNtlm, radius, grpcQuery,
     redisPingAsync, mongodbPing,
 } = require("../util-server");
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const { BeanModel } = require("redbean-node/dist/bean-model");
 const { Notification } = require("../notification");
@@ -233,8 +234,10 @@ class Monitor extends BeanModel {
             let tlsInfo = undefined;
 
             if (!previousBeat || this.type === "push") {
-                previousBeat = await R.findOne("heartbeat", " monitor_id = ? ORDER BY time DESC", [
+                previousBeat = await R.findOne("heartbeat", " ?? = ? ORDER BY ?? DESC", [
+                    'monitor_id',
                     this.id,
+                    'time'
                 ]);
             }
 
@@ -452,8 +455,11 @@ class Monitor extends BeanModel {
                     }
 
                     if (this.dnsLastResult !== dnsMessage) {
-                        R.exec("UPDATE `monitor` SET dns_last_result = ? WHERE id = ? ", [
+                        R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ? ", [
+                            'monitor',
+                            'dns_last_result',
                             dnsMessage,
+                            'id',
                             this.id
                         ]);
                     }
@@ -909,7 +915,8 @@ class Monitor extends BeanModel {
      * @returns {Promise<Object>}
      */
     async updateTlsInfo(checkCertificateResult) {
-        let tlsInfoBean = await R.findOne("monitor_tls_info", "monitor_id = ?", [
+        let tlsInfoBean = await R.findOne("monitor_tls_info", "?? = ?", [
+            'monitor_id',
             this.id,
         ]);
 
@@ -927,7 +934,11 @@ class Monitor extends BeanModel {
                 if (isValidObjects) {
                     if (oldCertInfo.certInfo.fingerprint256 !== checkCertificateResult.certInfo.fingerprint256) {
                         log.debug("monitor", "Resetting sent_history");
-                        await R.exec("DELETE FROM notification_sent_history WHERE type = 'certificate' AND monitor_id = ?", [
+                        await R.exec("DELETE FROM ?? WHERE ?? = ? AND ?? = ?", [
+                            'notification_sent_history',
+                            'type',
+                            'certificate',
+                            'monitor_id',
                             this.id
                         ]);
                     } else {
@@ -977,12 +988,12 @@ class Monitor extends BeanModel {
         let avgPing = parseInt(await R.getCell(`
             SELECT AVG(ping)
             FROM heartbeat
-            WHERE time > DATETIME('now', ? || ' hours')
+            WHERE time > (TIMESTAMPTZ((NOW() - interval '${duration} hours')::timestamp))
             AND ping IS NOT NULL
-            AND monitor_id = ? `, [
-            -duration,
-            monitorID,
-        ]));
+            AND monitor_id = ?
+            `, [
+                monitorID,
+        ], false));
 
         timeLogger.print(`[Monitor: ${monitorID}] avgPing`);
 
@@ -996,7 +1007,8 @@ class Monitor extends BeanModel {
      * @param {number} userID ID of user to send to
      */
     static async sendCertInfo(io, monitorID, userID) {
-        let tlsInfo = await R.findOne("monitor_tls_info", "monitor_id = ?", [
+        let tlsInfo = await R.findOne("monitor_tls_info", "?? = ?", [
+            'monitor_id',
             monitorID,
         ]);
         if (tlsInfo != null) {
@@ -1026,25 +1038,24 @@ class Monitor extends BeanModel {
 
         // Handle if heartbeat duration longer than the target duration
         // e.g. If the last beat's duration is bigger that the 24hrs window, it will use the duration between the (beat time - window margin) (THEN case in SQL)
+        // -- SUM all duration, also trim off the beat out of time window
+        //    -- SUM all uptime duration, also trim off the beat out of time window
         let result = await R.getRow(`
             SELECT
-               -- SUM all duration, also trim off the beat out of time window
                 SUM(
                     CASE
-                        WHEN (JULIANDAY(\`time\`) - JULIANDAY(?)) * 86400 < duration
-                        THEN (JULIANDAY(\`time\`) - JULIANDAY(?)) * 86400
+                        WHEN ((extract(julian from CURRENT_TIMESTAMP::timestamp) - extract(julian from timestamp '${startTime}')) * 86400) < duration
+                        THEN ((extract(julian from CURRENT_TIMESTAMP::timestamp) - extract(julian from timestamp '${startTime}')) * 86400)
                         ELSE duration
                     END
                 ) AS total_duration,
-
-               -- SUM all uptime duration, also trim off the beat out of time window
                 SUM(
                     CASE
                         WHEN (status = 1 OR status = 3)
                         THEN
                             CASE
-                                WHEN (JULIANDAY(\`time\`) - JULIANDAY(?)) * 86400 < duration
-                                    THEN (JULIANDAY(\`time\`) - JULIANDAY(?)) * 86400
+                                WHEN ((extract(julian from CURRENT_TIMESTAMP::timestamp) - extract(julian from timestamp '${startTime}')) * 86400) < duration
+                                THEN ((extract(julian from CURRENT_TIMESTAMP::timestamp) - extract(julian from timestamp '${startTime}')) * 86400)
                                 ELSE duration
                             END
                         END
@@ -1053,8 +1064,9 @@ class Monitor extends BeanModel {
             WHERE time > ?
             AND monitor_id = ?
         `, [
-            startTime, startTime, startTime, startTime, startTime,
+            startTime,
             monitorID,
+            // startTime, startTime, startTime, startTime, startTime,
         ]);
 
         timeLogger.print(`[Monitor: ${monitorID}][${duration}] sendUptime`);
@@ -1071,7 +1083,7 @@ class Monitor extends BeanModel {
 
         } else {
             // Handle new monitor with only one beat, because the beat's duration = 0
-            let status = parseInt(await R.getCell("SELECT `status` FROM heartbeat WHERE monitor_id = ?", [ monitorID ]));
+            let status = parseInt(await R.getCell("SELECT ?? FROM ?? WHERE ?? = ?", [ 'status', 'heartbeat', 'monitor_id', monitorID ], false));
 
             if (status === UP) {
                 uptime = 1;
@@ -1281,7 +1293,11 @@ class Monitor extends BeanModel {
             }
 
             if (sent) {
-                await R.exec("INSERT INTO notification_sent_history (type, monitor_id, days) VALUES(?, ?, ?)", [
+                await R.exec("INSERT INTO ?? (??, ??, ??) VALUES(?, ?, ?)", [
+                    'notification_sent_history',
+                    'type',
+                    'monitor_id',
+                    'days',
                     "certificate",
                     this.id,
                     targetDays,

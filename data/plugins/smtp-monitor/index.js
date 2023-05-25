@@ -38,17 +38,17 @@ class SmtpPlugin extends Plugin {
 
     async test() {
         const smtpClient = nodemailer.createTransport({
-                host: 'smtp.example.com',
-                port: 25
-            });
+            host: process.env.TEST_SMTP_SERVER,
+            port: process.env.TEST_SMTP_SERVER_PORT
+        });
 
         const response = await smtpClient.sendMail({
             from: 'example@example.com',
-            to: 'example@example.com',
-            subject: 'hi from node',
-            html: '<h1>wowwwhithere - test() async</h1>'
+            to: process.env.TEST_MAILBOX,
+            subject: 'hi from nodemailer',
+            html: '<h1>hi_there - im async test() </h1>'
         });
-        log.debug("Response", response)
+        log.debug("Response", response);
     }
 }
 

@@ -63,11 +63,11 @@
                                 </router-link>
                             </li>
 
-                            <li>
+                            <!-- <li>
                                 <a href="https://github.com/louislam/uptime-kuma/wiki" class="dropdown-item" target="_blank">
                                     <font-awesome-icon icon="info-circle" /> {{ $t("Help") }}
                                 </a>
-                            </li>
+                            </li> -->
 
                             <li v-if="$root.loggedIn && $root.socket.token !== 'autoLogin'">
                                 <button class="dropdown-item" @click="$root.logout">
@@ -145,11 +145,12 @@ export default {
         },
 
         hasNewVersion() {
-            if (this.$root.info.latestVersion && this.$root.info.version) {
-                return compareVersions(this.$root.info.latestVersion, this.$root.info.version) >= 1;
-            } else {
-                return false;
-            }
+            return false;
+            // if (this.$root.info.latestVersion && this.$root.info.version) {
+            //     return compareVersions(this.$root.info.latestVersion, this.$root.info.version) >= 1;
+            // } else {
+            //     return false;
+            // }
         },
 
     },
@@ -255,7 +256,7 @@ main {
         transition: all 0.2s;
         padding-left: 0;
         padding-bottom: 0;
-        margin-top: 8px !important;
+        // margin-top: 8px !important;
         border-radius: 16px;
         overflow: hidden;
 

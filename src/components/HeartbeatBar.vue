@@ -37,7 +37,7 @@ export default {
         return {
             beatWidth: 10,
             beatHeight: 30,
-            hoverScale: 1.5,
+            hoverScale: 1.75,
             beatMargin: 4,
             move: false,
             maxBeat: -1,
@@ -95,7 +95,8 @@ export default {
                 let width = -(this.beatWidth + this.beatMargin * 2);
 
                 return {
-                    transition: "all ease-in-out 0.25s",
+                    // transition: "all ease-in-out 0.25s",
+                    transition: "all ease-in-out 0.5s",
                     transform: `translateX(${width}px)`,
                 };
 
@@ -140,6 +141,8 @@ export default {
     },
 
     mounted() {
+        this.$root.storage()[`timezone`] = 'utc';
+
         if (this.size === "small") {
             this.beatWidth = 5;
             this.beatHeight = 16;

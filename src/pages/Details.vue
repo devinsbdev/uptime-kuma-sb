@@ -253,6 +253,10 @@ export default {
             return this.$t("notAvailableShort");
         },
 
+        default() {
+            return 'ms';
+        },
+
         avgPing() {
             if (this.$root.avgPingList[this.monitor.id] || this.$root.avgPingList[this.monitor.id] === 0) {
                 return this.$root.avgPingList[this.monitor.id];
@@ -301,7 +305,7 @@ export default {
         },
     },
     mounted() {
-
+        this.$refs
     },
     methods: {
         /** Request a test notification be sent for this monitor */
@@ -325,6 +329,8 @@ export default {
         /** Request that this monitor is paused */
         pauseMonitor() {
             this.$root.getSocket().emit("pauseMonitor", this.monitor.id, (res) => {
+                this.$root.monitorList[this.monitor.id].active = false;
+                // this.monitor.active = false;
                 this.$root.toastRes(res);
             });
         },

@@ -2,6 +2,7 @@
  * For Client Socket
  */
 const { TimeLogger } = require("../src/util");
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const { UptimeKumaServer } = require("./uptime-kuma-server");
 const server = UptimeKumaServer.getInstance();
@@ -80,7 +81,7 @@ async function sendImportantHeartbeatList(socket, monitorID, toUser = false, ove
 
     let list = await R.find("heartbeat", `
         monitor_id = ?
-        AND important = 1
+        AND important = true
         ORDER BY time DESC
         LIMIT 500
     `, [

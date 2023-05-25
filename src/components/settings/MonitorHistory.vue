@@ -22,12 +22,17 @@
                 {{ $t("dataRetentionTimeError") }}
             </div>
         </div>
-        <div class="my-4">
-            <button class="btn btn-primary" type="button" @click="saveSettings()">
+        <div class="my-1">
+            <button class="btn btn-primary" type="button" style="margin-bottom: 25px;" @click="saveSettings()">
                 {{ $t("Save") }}
             </button>
         </div>
         <div class="my-4">
+            <div class="settings-content">
+                <div class="settings-content-header">
+                    Database <span style="font-size:medium; opacity: 0.75">[ {{ databaseInfoDisplay }} ]</span>
+                </div>
+            </div>
             <div class="my-3">
                 <button class="btn btn-outline-info me-2" @click="shrinkDatabase">
                     {{ $t("Shrink Database") }} ({{ databaseSizeDisplay }})
@@ -45,8 +50,9 @@
         <Confirm
             ref="confirmClearStatistics"
             btn-style="btn-danger"
-            :yes-text="$t('Yes')"
-            :no-text="$t('No')"
+            :yes-text="$t('I need this done yesterday!')"
+            :no-text="$t('Nevermind.')"
+            :title="$t('Uh, yeah.. sure. Can we talk first?')"
             @yes="clearStatistics"
         >
             {{ $t("confirmClearStatisticsMsg") }}
@@ -69,6 +75,7 @@ export default {
     data() {
         return {
             databaseSize: 0,
+            databaseInfo: 'NotFound'
         };
     },
 
@@ -83,21 +90,26 @@ export default {
             return this.$parent.$parent.$parent.settingsLoaded;
         },
         databaseSizeDisplay() {
-            return (
-                Math.round((this.databaseSize / 1024 / 1024) * 10) / 10 + " MB"
-            );
+            return this.databaseSize;
         },
+        databaseInfoDisplay() {
+            return this.databaseInfo;
+        }
+        // databaseNameDisplay() {
+        //     return Database.dbName;
+        // }
     },
 
-    mounted() {
+    async mounted() {
         this.loadDatabaseSize();
+        this.loadDatabaseInfo();
     },
 
     methods: {
         /** Get the current size of the database */
-        loadDatabaseSize() {
+        async loadDatabaseSize() {
             log.debug("monitorhistory", "load database size");
-            this.$root.getSocket().emit("getDatabaseSize", (res) => {
+            await this.$root.getSocket().emit("getDatabaseSize", (res) => {
                 if (res.ok) {
                     this.databaseSize = res.size;
                     log.debug("monitorhistory", "database size: " + res.size);
@@ -106,6 +118,25 @@ export default {
                 }
             });
         },
+
+        /** Get the current database type and version. */
+        async loadDatabaseInfo() {
+            log.debug("monitorhistory", "load database info");
+            await this.$root.getSocket().emit("getDatabaseInfo", (res) => {
+                if (res.ok) {
+                    this.databaseInfo = res.info;
+                    log.debug("monitorhistory", "databse info:" + res.info);
+                } else {
+                    log.debug("monitorhistory", res);
+                }
+            });
+        },
+
+        // async loadDatabaseName() {
+        //     log.debug("monitorhistory", "load database name");
+        //     log.debug("monitorhistory", "db name: " + Database.dbName);
+        //     return Database.dbName;
+        // },
 
         /** Request that the database is shrunk */
         shrinkDatabase() {
@@ -137,3 +168,31 @@ export default {
     },
 };
 </script>
+
+<style lang="scss" scoped>
+@import "../../assets/vars.scss";
+.settings-content {
+    .settings-content-header {
+        width: calc(100% + 20px);
+        border-bottom: 1px solid #dee2e6;
+        border-radius: 0 10px 0 0;
+        margin-top: -20px;
+        margin-right: -20px;
+        padding: 12.5px 1em;
+        font-size: 26px;
+
+        .dark & {
+            background: $dark-header-bg;
+            border-bottom: 0;
+        }
+
+        .mobile & {
+            padding: 15px 0 0 0;
+
+            .dark & {
+                background-color: transparent;
+            }
+        }
+    }
+}
+</style>

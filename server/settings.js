@@ -1,3 +1,4 @@
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const { log } = require("../src/util");
 
@@ -50,10 +51,13 @@ class Settings {
             log.debug("settings", `Get Setting (cache): ${key}: ${v}`);
             return v;
         }
-
-        let value = await R.getCell("SELECT `value` FROM setting WHERE `key` = ? ", [
+        R.debug(true);
+        let value = await R.getCell('SELECT ?? FROM ?? WHERE ?? = ?', [
+            'value',
+            'setting',
+            'key',
             key,
-        ]);
+        ], false);
 
         try {
             const v = JSON.parse(value);
@@ -79,7 +83,8 @@ class Settings {
      */
     static async set(key, value, type = null) {
 
-        let bean = await R.findOne("setting", " `key` = ? ", [
+        let bean = await R.findOne("setting", " ?? = ? ", [
+            'key',
             key,
         ]);
         if (!bean) {
@@ -99,7 +104,7 @@ class Settings {
      * @returns {Promise<Bean>}
      */
     static async getSettings(type) {
-        let list = await R.getAll("SELECT `key`, `value` FROM setting WHERE `type` = ? ", [
+        let list = await R.getAll("SELECT key, value FROM setting WHERE type = ? ", [
             type,
         ]);
 
@@ -128,7 +133,8 @@ class Settings {
         let promiseList = [];
 
         for (let key of keyList) {
-            let bean = await R.findOne("setting", " `key` = ? ", [
+            let bean = await R.findOne("setting", " ?? = ? ", [
+                'key',
                 key
             ]);
 

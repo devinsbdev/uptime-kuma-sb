@@ -7,13 +7,29 @@ const Database = require("../database");
  */
 module.exports = (socket) => {
 
+    // Get database info
+    socket.on("getDatabaseInfo", async (callback) => {
+        try {
+            checkLogin(socket);
+            callback({
+                ok: true,
+                info: await Database.getDbVersion()
+            });
+        } catch (err) {
+            callback({
+                ok: false,
+                info: err.message
+            });
+        }
+    });
+
     // Post or edit incident
     socket.on("getDatabaseSize", async (callback) => {
         try {
             checkLogin(socket);
             callback({
                 ok: true,
-                size: Database.getSize(),
+                size: await Database.getSize('all'),
             });
         } catch (error) {
             callback({
@@ -26,7 +42,7 @@ module.exports = (socket) => {
     socket.on("shrinkDatabase", async (callback) => {
         try {
             checkLogin(socket);
-            Database.shrink();
+            await Database.shrinkFull();
             callback({
                 ok: true,
             });

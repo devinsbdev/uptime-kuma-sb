@@ -1,6 +1,5 @@
 const { BeanModel } = require("redbean-node/dist/bean-model");
 const passwordHash = require("../password-hash");
-// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 
 class User extends BeanModel {

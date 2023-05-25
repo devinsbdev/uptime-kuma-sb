@@ -1,0 +1,7 @@
+{
+    "authOptions": {
+        "clientId": "<client_id>",
+        "authority": "https://login.microsoftonline.com/<tenant_id>",
+        "clientSecret": "<client_secret>"
+    }
+}

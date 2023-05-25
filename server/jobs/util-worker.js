@@ -32,14 +32,6 @@ const exit = function (error) {
 
 /** Connects to the database */
 const connectDb = async function () {
-    const dbPath = path.join(
-        process.env.DATA_DIR || workerData["data-dir"] || "./data/"
-    );
-
-    Database.init({
-        "data-dir": dbPath,
-    });
-
     await Database.connect();
 };
 

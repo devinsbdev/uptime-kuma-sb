@@ -43,12 +43,13 @@ export default {
             loading: false,
 
             // Configurable filtering on top of the returned data
-            chartPeriodHrs: 0,
+            chartPeriodHrs: 0.25,
 
             chartPeriodOptions: {
-                0: this.$t("recent"),
+                0.25: this.$t("recent"),
                 3: "3h",
                 6: "6h",
+                12: "12h",
                 24: "24h",
                 168: "1w",
             },
@@ -59,6 +60,13 @@ export default {
         };
     },
     computed: {
+        beatList() {
+            if (this.heartbeatList === null) {
+                return this.$root.heartbeatList[this.monitorId];
+            } else {
+                return this.heartbeatList;
+            }
+        },
         chartOptions() {
             return {
                 responsive: true,
@@ -80,14 +88,14 @@ export default {
                         left: 10,
                         right: 30,
                         top: 30,
-                        bottom: 10,
+                        bottom: 5,
                     },
                 },
 
                 elements: {
                     point: {
                         // Hide points on chart unless mouse-over
-                        radius: 0,
+                        radius: 4,
                         hitRadius: 100,
                     },
                 },
@@ -119,7 +127,7 @@ export default {
                             display: true,
                             text: this.$t("respTime"),
                         },
-                        offset: false,
+                        offset: true,
                         grid: {
                             color: this.$root.theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)",
                         },
@@ -173,7 +181,8 @@ export default {
                     // Filtering as data gets appended
                     // not the most efficient, but works for now
                     (beat) => dayjs.utc(beat.time).tz(this.$root.timezone).isAfter(
-                        dayjs().subtract(Math.max(this.chartPeriodHrs, 6), "hours")
+                        dayjs().subtract(Math.max(this.chartPeriodHrs, 0), "hours")
+                        // dayjs().subtract(Math.max(this.chartPeriodHrs, 6), "hours")
                     )
                 )
                 .map((beat) => {
@@ -197,7 +206,7 @@ export default {
                         fill: "origin",
                         tension: 0.2,
                         borderColor: "#5CDD8B",
-                        backgroundColor: "#5CDD8B38",
+                        backgroundColor: "#5CDD8B30",
                         yAxisID: "y",
                         label: "ping",
                     },
@@ -222,39 +231,48 @@ export default {
         // Update chart data when the selected chart period changes
         chartPeriodHrs: function (newPeriod) {
 
-            // eslint-disable-next-line eqeqeq
-            if (newPeriod == "0") {
-                this.heartbeatList = null;
-                this.$root.storage().removeItem(`chart-period-${this.monitorId}`);
-            } else {
-                this.loading = true;
+            this.loading = true;
 
-                this.$root.getMonitorBeats(this.monitorId, newPeriod, (res) => {
-                    if (!res.ok) {
-                        toast.error(res.msg);
-                    } else {
-                        this.heartbeatList = res.data;
-                        this.$root.storage()[`chart-period-${this.monitorId}`] = newPeriod;
-                    }
-                    this.loading = false;
-                });
-            }
+            // eslint-disable-next-line eqeqeq
+            // if (newPeriod == 0.25) {
+            // this.heartbeatList = null;
+            // this.$root.storage().removeItem(`chart-period-${this.monitorId}`);
+            //     this.$root.storage()[`chart-period-${this.monitorId}`] = newPeriod;
+            // } else {
+            // this.loading = true;
+
+            this.$root.getMonitorBeats(this.monitorId, newPeriod, (res) => {
+                if (!res.ok) {
+                    toast.error(res.msg);
+                } else {
+                    this.heartbeatList = res.data;
+                    this.$root.storage()[`chart-period-${this.monitorId}`] = newPeriod;
+                }
+                // this.loading = false;
+            });
+            // }
+            this.loading = false;
         }
     },
     created() {
         // Setup Watcher on the root heartbeatList,
         // And mirror latest change to this.heartbeatList
         this.$watch(() => this.$root.heartbeatList[this.monitorId],
-            (heartbeatList) => {
+            (hbl) => {
 
                 log.debug("ping_chart", `this.chartPeriodHrs type ${typeof this.chartPeriodHrs}, value: ${this.chartPeriodHrs}`);
 
-                // eslint-disable-next-line eqeqeq
-                if (this.chartPeriodHrs != "0") {
-                    const newBeat = heartbeatList.at(-1);
+                let newBeat;
+
+                try {
+                    newBeat = hbl.at(-1);
                     if (newBeat && dayjs.utc(newBeat.time) > dayjs.utc(this.heartbeatList.at(-1)?.time)) {
-                        this.heartbeatList.push(heartbeatList.at(-1));
+                        this.heartbeatList.push(hbl.at(-1));
+                    } else {
+                        return this.heartbeatList;
                     }
+                } catch (err) {
+                    console.log("Skip - no relevant beats found.");
                 }
             },
             { deep: true }

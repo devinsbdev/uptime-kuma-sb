@@ -1,3 +1,4 @@
+// const { R } = require("redbean-node");
 const { R } = require("redbean-node");
 const HttpProxyAgent = require("http-proxy-agent");
 const HttpsProxyAgent = require("https-proxy-agent");
@@ -21,7 +22,7 @@ class Proxy {
         let bean;
 
         if (proxyID) {
-            bean = await R.findOne("proxy", " id = ? AND user_id = ? ", [ proxyID, userID ]);
+            bean = await R.findOne("proxy", " ?? = ? AND ?? = ? ", [ 'id', proxyID, 'user_id', userID ]);
 
             if (!bean) {
                 throw new Error("proxy not found");
@@ -41,7 +42,13 @@ class Proxy {
 
         // When proxy is default update deactivate old default proxy
         if (proxy.default) {
-            await R.exec("UPDATE proxy SET `default` = 0 WHERE `default` = 1");
+            await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ?", [
+                'proxy',
+                'default',
+                'false',
+                'default',
+                'true'
+            ]);
         }
 
         bean.user_id = userID;
@@ -51,7 +58,7 @@ class Proxy {
         bean.auth = proxy.auth;
         bean.username = proxy.username;
         bean.password = proxy.password;
-        bean.active = proxy.active || true;
+        bean.active = proxy.active;
         bean.default = proxy.default || false;
 
         await R.store(bean);
@@ -71,14 +78,20 @@ class Proxy {
      * @return {Promise<void>}
      */
     static async delete(proxyID, userID) {
-        const bean = await R.findOne("proxy", " id = ? AND user_id = ? ", [ proxyID, userID ]);
+        const bean = await R.findOne("proxy", " ?? = ? AND ?? = ? ", [ 'id', proxyID, 'user_id', userID ]);
 
         if (!bean) {
             throw new Error("proxy not found");
         }
 
         // Delete removed proxy from monitors if exists
-        await R.exec("UPDATE monitor SET proxy_id = null WHERE proxy_id = ?", [ proxyID ]);
+        await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ?", [
+            'monitor',
+            'proxy_id',
+            null,
+            'proxy_id',
+            proxyID
+        ]);
 
         // Delete proxy from list
         await R.trash(bean);
@@ -157,7 +170,11 @@ class Proxy {
     static async reloadProxy() {
         const server = UptimeKumaServer.getInstance();
 
-        let updatedList = await R.getAssoc("SELECT id, proxy_id FROM monitor");
+        let updatedList = await R.getAssoc("SELECT ??,?? FROM ??", [
+            'id',
+            'proxy_id',
+            'monitor'
+        ]);
 
         for (let monitorID in server.monitorList) {
             let monitor = server.monitorList[monitorID];
@@ -178,12 +195,24 @@ class Proxy {
  */
 async function applyProxyEveryMonitor(proxyID, userID) {
     // Find all monitors with id and proxy id
-    const monitors = await R.getAll("SELECT id, proxy_id FROM monitor WHERE user_id = ?", [ userID ]);
+    const monitors = await R.getAll("SELECT ??, ?? FROM ?? WHERE ?? = ?", [
+        'id',
+        'proxy_id',
+        'monitor',
+        'user_id',
+        userID
+    ]);
 
     // Update proxy id not match with given proxy id
     for (const monitor of monitors) {
         if (monitor.proxy_id !== proxyID) {
-            await R.exec("UPDATE monitor SET proxy_id = ? WHERE id = ?", [ proxyID, monitor.id ]);
+            await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ?", [
+                'monitor',
+                'proxy_id',
+                proxyID,
+                'id',
+                monitor.id
+            ]);
         }
     }
 }
