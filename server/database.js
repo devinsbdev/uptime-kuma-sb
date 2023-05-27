@@ -36,7 +36,8 @@ class Database {
      */
     static async connect(testMode = false, autoloadModels = true, noLog = false) {
 
-        const acquireConnectionTimeout = 120 * 1000;
+        const acquireConnectionTimeout = 10 * 1000;
+        const idleTimeout = 300 * 1000;
 
         const knexInstance = knex({
             client: 'pg',
@@ -46,12 +47,12 @@ class Database {
                 user: Database.dbUser,
                 password: Database.dbPass,
                 database: Database.dbName,
-                acquireConnectionTimeout: acquireConnectionTimeout
+                // acquireConnectionTimeout: acquireConnectionTimeout
             },
             pool: {
                 min: 1,
-                max: 10,
-                idleTimeoutMillis: acquireConnectionTimeout,
+                max: 20,
+                idleTimeoutMillis: idleTimeout,
                 propagateCreateError: false,
                 acquireTimeoutMillis: acquireConnectionTimeout,
             },
@@ -79,14 +80,21 @@ class Database {
             if ((Number(ok) >= 0)) {
                 log.info("db", "Found an existing database to use, dbinit not needed.");
             } else {
-                throw new Error("wtfff");
+                throw new Error("wtfff"); // this would be an odd case can't think of what would cause it
             }
         } catch (error) {
-            /* run database setup; it likely doesn't exist */
-            log.info("db", "Looks like database doesn't exist, we'll build out the necessary tables now ...")
-            const sql_script = fs.readFileSync('./db/pginit.sql', {'encoding': 'utf-8'});
-            const dbsetup_result = await R.exec(sql_script, []);
-            console.log(dbsetup_result);
+            if (RegExp(/Knex: Timeout.*/).test(error.message)) {
+                log.error("db", "Timeout.. Does the database in /data/.env exist? Are you certain credentials in /data/.env are correct?");
+                throw new Error("No database to work with...");
+            } else if (RegExp(/.*does not exist$/).test(error.message)) {
+                /* run database setup; it very likely doesn't exist */
+                log.info("db", "Looks like database doesn't exist, we'll build out the necessary tables now ...");
+                const sql_script = fs.readFileSync('./db/pginit.sql', { 'encoding': 'utf-8' });
+                const dbsetup_result = await R.exec(sql_script, []);
+                console.log(dbsetup_result);
+            } else {
+                throw error;
+            }
         }
     }
 
