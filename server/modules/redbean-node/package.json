@@ -1,0 +1,73 @@
+{
+    "name": "redbean-node",
+    "version": "0.2.0",
+    "description": "RedBeanNode is an easy to use ORM tool for Node.js, strongly inspired by RedBeanPHP. It automatically generates the tables and columns on-the-fly",
+    "main": "dist/redbean-node.js",
+    "types": "dist/redbean-node.d.ts",
+    "files": [
+        "dist/*",
+        "README.md",
+        ".gitignore"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "test": "npm run build && nyc --reporter=html mocha --timeout 60000",
+        "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
+        "publish-release": "np",
+        "example2": "node -r ts-node/register --inspect dev_example2.ts",
+        "lxd_server": "ts-node ./test/lib/lxd-server.ts"
+    },
+    "author": "Louis Lam",
+    "license": "MIT",
+    "dependencies": {
+        "@types/node": "^14.18.12",
+        "await-lock": "^2.1.0",
+        "dayjs": "^1.11.0",
+        "glob": "^7.2.0",
+        "knex": "^2.4.0",
+        "lodash": "^4.17.21"
+    },
+    "homepage": "https://redbean-node.whatsticker.online",
+    "bugs": {
+        "url": "https://github.com/louislam/redbean-node/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/louislam/redbean-node"
+    },
+    "keywords": [
+        "redbeanphp",
+        "orm",
+        "sql",
+        "mysql",
+        "mariadb",
+        "sqlite",
+        "query",
+        "knex",
+        "bean",
+        "redbean",
+        "redbean-node",
+        "redbeannode"
+    ],
+    "np": {
+        "releaseDraft": false,
+        "cleanup": false
+    },
+    "devDependencies": {
+        "axios": "^0.21.4",
+        "body-parser": "^1.20.0",
+        "chai": "^4.3.6",
+        "coveralls": "^3.1.1",
+        "dotenv": "^8.6.0",
+        "express": "^4.17.3",
+        "mocha": "^10.2.0",
+        "mocha-lcov-reporter": "^1.3.0",
+        "mysql": "^2.18.1",
+        "np": "^7.6.1",
+        "nyc": "^15.1.0",
+        "sqlite3": "^5.1.4",
+        "tcp-ping": "^0.1.1",
+        "ts-node": "^9.1.1",
+        "typescript": "^4.6.3"
+    }
+}
