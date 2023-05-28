@@ -7,6 +7,7 @@
 /kubernetes
 /.devcontainer
 /.do
+/dist
 **/.dockerignore
 /private
 **/.git

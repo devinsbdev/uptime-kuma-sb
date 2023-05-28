@@ -3,6 +3,7 @@ const { R } = require("./modules/redbean-node/dist/redbean-node");
 const { log, sleep } = require("../src/util");
 const knex = require("knex");
 const fs = require("fs");
+require("dotenv").config({ path: "data/.env" });
 
 /**
  * Database & App Data Folder
@@ -16,7 +17,7 @@ class Database {
     /**
      * User Upload Dir (Default: ./data/upload)
      */
-    static uploadDir = Database.dataDir + "upload/";
+    static uploadDir = this.dataDir + "upload/";
 
     static noReject = true;
 
@@ -51,8 +52,8 @@ class Database {
                 // acquireConnectionTimeout: acquireConnectionTimeout
             },
             pool: {
-                min: 1,
-                max: 20,
+                min: 5,
+                max: 15,
                 idleTimeoutMillis: idleTimeout,
                 propagateCreateError: false,
                 acquireTimeoutMillis: acquireConnectionTimeout,
