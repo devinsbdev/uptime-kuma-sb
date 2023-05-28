@@ -1,4 +1,5 @@
-const { R } = require("redbean-node");
+// const { R } = require("redbean-node");
+const { R } = require("../modules/redbean-node/dist/redbean-node");
 const { log } = require("../../src/util");
 const { setSetting, setting } = require("../util-server");
 

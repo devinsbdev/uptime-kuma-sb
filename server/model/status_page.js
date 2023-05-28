@@ -1,5 +1,7 @@
-const { BeanModel } = require("redbean-node/dist/bean-model");
-const { R } = require("redbean-node");
+// const { BeanModel } = require("redbean-node/dist/bean-model");
+// const { R } = require("redbean-node");
+const { BeanModel } = require("../modules/redbean-node/dist/bean-model");
+const { R } = require("../modules/redbean-node/dist/redbean-node");
 const cheerio = require("cheerio");
 const { UptimeKumaServer } = require("../uptime-kuma-server");
 const jsesc = require("jsesc");

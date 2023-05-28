@@ -1,6 +1,8 @@
-const { BeanModel } = require("redbean-node/dist/bean-model");
+// const { BeanModel } = require("redbean-node/dist/bean-model");
+const { BeanModel } = require("../modules/redbean-node/dist/bean-model");
 const { parseTimeObject, parseTimeFromTimeObject, log } = require("../../src/util");
-const { R } = require("redbean-node");
+const { R } = require("../modules/redbean-node/dist/redbean-node");
+// const { R } = require("redbean-node");
 const dayjs = require("dayjs");
 const Cron = require("croner");
 const { UptimeKumaServer } = require("../uptime-kuma-server");

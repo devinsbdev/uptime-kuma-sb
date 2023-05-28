@@ -3,8 +3,8 @@ const apicache = require("../modules/apicache");
 const { UptimeKumaServer } = require("../uptime-kuma-server");
 const StatusPage = require("../model/status_page");
 const { allowDevAllOrigin, sendHttpError } = require("../util-server");
-const Database = require("../database");
-const { R } = require("redbean-node");
+// const { R } = require("redbean-node");
+const { R } = require("../modules/redbean-node/dist/redbean-node");
 const Monitor = require("../model/monitor");
 
 let router = express.Router();

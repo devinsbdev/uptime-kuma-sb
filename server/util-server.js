@@ -1,7 +1,7 @@
 const tcpp = require("tcp-ping");
 const ping = require("@louislam/ping");
 // const { R } = require("redbean-node");
-const { R } = require("redbean-node");
+const { R } = require("./modules/redbean-node/dist/redbean-node");
 const { log, genSecret } = require("../src/util");
 const passwordHash = require("./password-hash");
 const { Resolver } = require("dns");

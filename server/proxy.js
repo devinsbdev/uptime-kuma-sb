@@ -1,5 +1,5 @@
 // const { R } = require("redbean-node");
-const { R } = require("redbean-node");
+const { R } = require("./modules/redbean-node/dist/redbean-node");
 const HttpProxyAgent = require("http-proxy-agent");
 const HttpsProxyAgent = require("https-proxy-agent");
 const SocksProxyAgent = require("socks-proxy-agent");

@@ -1,5 +1,6 @@
 const Database = require("../../server/database");
-const { R } = require("redbean-node");
+const { R } = require("../modules/redbean-node/dist/redbean-node");
+// const { R } = require("redbean-node");
 const { checkLogin, setSetting } = require("../util-server");
 const dayjs = require("dayjs");
 const { log } = require("../../src/util");

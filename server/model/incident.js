@@ -1,4 +1,5 @@
-const { BeanModel } = require("redbean-node/dist/bean-model");
+// const { BeanModel } = require("redbean-node/dist/bean-model");
+const { BeanModel } = require("../modules/redbean-node/dist/bean-model");
 
 class Incident extends BeanModel {
 

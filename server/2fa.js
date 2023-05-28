@@ -1,5 +1,5 @@
 // const { R } = require("redbean-node");
-const { R } = require("redbean-node");
+const { R } = require("../server/modules/redbean-node/dist/redbean-node");
 
 class TwoFA {
 

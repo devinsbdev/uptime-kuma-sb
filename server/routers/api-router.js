@@ -1,7 +1,7 @@
 let express = require("express");
 const { allowDevAllOrigin, allowAllOrigin, percentageToColor, filterAndJoin, sendHttpError } = require("../util-server");
 // const { R } = require("redbean-node");
-const { R } = require("redbean-node");
+const { R } = require("../modules/redbean-node/dist/redbean-node");
 const apicache = require("../modules/apicache");
 const Monitor = require("../model/monitor");
 const dayjs = require("dayjs");

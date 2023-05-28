@@ -1,5 +1,5 @@
 // const { R } = require("redbean-node");
-const { R } = require("redbean-node");
+const { R } = require("./modules/redbean-node/dist/redbean-node");
 const { log } = require("../src/util");
 
 class Settings {
@@ -51,7 +51,7 @@ class Settings {
             log.debug("settings", `Get Setting (cache): ${key}: ${v}`);
             return v;
         }
-        R.debug(true);
+
         let value = await R.getCell('SELECT ?? FROM ?? WHERE ?? = ?', [
             'value',
             'setting',

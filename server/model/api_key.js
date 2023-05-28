@@ -1,6 +1,6 @@
-const { BeanModel } = require("redbean-node/dist/bean-model");
+const { BeanModel } = require("../modules/redbean-node/dist/bean-model");
+const { R } = require("../modules/redbean-node/dist/redbean-node");
 // const { R } = require("redbean-node");
-const { R } = require("redbean-node");
 const dayjs = require("dayjs");
 
  class APIKey extends BeanModel {
