@@ -48,4 +48,5 @@ dist-ssr
 #!/data/.gitkeep
 #.vscode
 
-### End of .gitignore content
+.vs
+.vscode
