@@ -3,7 +3,7 @@ const { R } = require("./modules/redbean-node/dist/redbean-node");
 const { log, sleep } = require("../src/util");
 const knex = require("knex");
 const fs = require("fs");
-require("dotenv").config({ path: "data/.env" });
+require("dotenv").config();
 
 /**
  * Database & App Data Folder
@@ -40,7 +40,7 @@ class Database {
 
         const acquireConnectionTimeout = 10 * 1000;
         const idleTimeout = 300 * 1000;
-
+        console.log(process.env);
         const knexInstance = knex({
             client: 'pg',
             connection: {
@@ -86,7 +86,7 @@ class Database {
             }
         } catch (error) {
             if (RegExp(/Knex: Timeout.*/).test(error.message)) {
-                log.error("db", "Timeout.. Does the database in /data/.env exist? Are you certain credentials in /data/.env are correct?");
+                log.error("db", "Timeout.. Does the database in env exist? Are you certain credentials in env are correct?");
                 throw new Error("No database to work with...");
             } else if (RegExp(/.*does not exist$/).test(error.message)) {
                 /* run database setup; it very likely doesn't exist */

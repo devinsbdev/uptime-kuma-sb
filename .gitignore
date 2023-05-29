@@ -14,6 +14,7 @@
 **/.gitignore
 **/docker-compose*
 **/[Dd]ockerfile*
+/data/docker-compose.yml
 LICENSE
 README.md
 .editorconfig
