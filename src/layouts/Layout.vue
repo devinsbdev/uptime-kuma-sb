@@ -122,7 +122,6 @@
 
 <script>
 import Login from "../components/Login.vue";
-import compareVersions from "compare-versions";
 
 export default {
 

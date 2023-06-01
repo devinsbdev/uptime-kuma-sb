@@ -1,6 +1,5 @@
 const { BeanModel } = require("../modules/redbean-node/dist/bean-model");
 
-
 class DockerHost extends BeanModel {
     /**
      * Returns an object that ready to parse to JSON

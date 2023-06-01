@@ -30,7 +30,7 @@
         <div class="my-4">
             <div class="settings-content">
                 <div class="settings-content-header">
-                    Database <span style="font-size:medium; opacity: 0.75">[ {{ databaseInfoDisplay }} ]</span>
+                    Database <span style="font-size: medium; opacity: 0.75;">[ {{ databaseInfoDisplay }} ]</span>
                 </div>
             </div>
             <div class="my-3">
@@ -171,6 +171,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "../../assets/vars.scss";
+
 .settings-content {
     .settings-content-header {
         width: calc(100% + 20px);

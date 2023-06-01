@@ -1,49 +1,84 @@
+/* eslint-disable max-statements-per-line */
+/* eslint-disable no-cond-assign */
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
+let __createBinding = (this && this.__createBinding) || (Object.create ? (function (o, m, k, k2) {
+    if (k2 === undefined) {
+        k2 = k;
+    }
+    let desc = Object.getOwnPropertyDescriptor(m, k);
     if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
+        desc = { enumerable: true,
+            get: function () {
+                return m[k];
+            } };
     }
     Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
+}) : (function (o, m, k, k2) {
+    if (k2 === undefined) {
+        k2 = k;
+    }
     o[k2] = m[k];
 }));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
+let __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function (o, v) {
+    Object.defineProperty(o, "default", { enumerable: true,
+        value: v });
+}) : function (o, v) {
     o["default"] = v;
 });
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+let __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    let c = arguments.length; let r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc; let d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") {
+        r = Reflect.decorate(decorators, target, key, desc);
+    } else {
+        for (let i = decorators.length - 1; i >= 0; i--) {
+            if (d = decorators[i]) {
+                r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+            }
+        }
+    }
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+let __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) {
+        return mod;
+    }
+    let result = {};
+    if (mod != null) {
+        for (let k in mod) {
+            if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) {
+                __createBinding(result, mod, k);
+            }
+        }
+    }
     __setModuleDefault(result, mod);
     return result;
 };
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+let __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) {
+        throw new TypeError("Private accessor was defined without a getter");
+    }
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) {
+        throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    }
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
-    if (kind === "m") throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+let __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") {
+        throw new TypeError("Private method is not writable");
+    }
+    if (kind === "a" && !f) {
+        throw new TypeError("Private accessor was defined without a setter");
+    }
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) {
+        throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    }
     return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
+let __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _BeanMeta__R, _BeanMeta__type, _BeanMeta__lock, _BeanMeta__chainParentBean, _BeanMeta__typeBeanList, _BeanMeta__ownListList, _BeanMeta__sharedListList, _BeanMeta__old;
-var Bean_1;
+let _BeanMeta__R; let _BeanMeta__type; let _BeanMeta__lock; let _BeanMeta__chainParentBean; let _BeanMeta__typeBeanList; let _BeanMeta__ownListList; let _BeanMeta__sharedListList; let _BeanMeta__old;
+let Bean_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bean = void 0;
 const magic_methods_1 = require("./magic-methods");
@@ -59,6 +94,7 @@ let Bean = Bean_1 = class Bean {
         this.beanMeta.type = type;
         this.devLog("Instantiate");
     }
+
     __set(name, value) {
         this.devLog("Set Property:", name, "=", value);
         if (name.startsWith("_")) {
@@ -68,8 +104,7 @@ let Bean = Bean_1 = class Bean {
         if (value instanceof Bean_1 || hasRelationField) {
             this.devLog("A bean set to property");
             this.setRelationBean(name, value);
-        }
-        else {
+        } else {
             let key = Bean_1.internalName(name);
             this.beanMeta.old[key] = this[key];
             this[key] = value;
@@ -80,6 +115,7 @@ let Bean = Bean_1 = class Bean {
             }
         }
     }
+
     __get(name) {
         this.devLog("__get:", name);
         if (name.startsWith("_")) {
@@ -100,8 +136,7 @@ let Bean = Bean_1 = class Bean {
                 type = this.beanMeta.fetchAs;
             }
             return this.getRelationBean(alias, type, this.beanMeta.noCache);
-        }
-        else if (Bean_1.isOwnListProperty(name)) {
+        } else if (Bean_1.isOwnListProperty(name)) {
             this.devLog("ownList Property detected");
             let alias = this.beanMeta.type;
             let type = Bean_1.getTypeFromOwnListProperty(name);
@@ -110,39 +145,38 @@ let Bean = Bean_1 = class Bean {
                 alias = this.beanMeta.alias;
             }
             return this.ownList(type, alias, this.beanMeta.noCache);
-        }
-        else if (Bean_1.isSharedListProperty(name)) {
+        } else if (Bean_1.isSharedListProperty(name)) {
             this.devLog("sharedList Property detected");
             let type = Bean_1.getTypeFromSharedListProperty(name);
             return this.sharedList(type, this.beanMeta.noCache);
-        }
-        else {
+        } else {
             let key = Bean_1.internalName(name);
             return this[key];
         }
     }
+
     __isset(name) {
         this.devLog("Check isset property of ", name);
-        return (this[Bean_1.internalName(name)]) ? true : false;
+        return !!(this[Bean_1.internalName(name)]);
     }
+
     setRelationBean(alias, bean) {
         if (bean) {
             if (bean.id) {
-                if (this.getType() == bean.getType() && this.id === bean.id) {
+                if (this.getType() === bean.getType() && this.id === bean.id) {
                     throw "Error: self reference detected";
                 }
                 this[Bean_1.getInternalRelationFieldName(alias)] = bean.id;
-            }
-            else {
+            } else {
                 this[Bean_1.getInternalRelationFieldName(alias)] = null;
             }
             this.beanMeta.typeBeanList[alias] = bean;
-        }
-        else {
+        } else {
             delete this.beanMeta.typeBeanList[alias];
             this[Bean_1.getInternalRelationFieldName(alias)] = null;
         }
     }
+
     async getRelationBean(alias, type, force = false) {
         this.devLog("Getting relation bean:", alias, type, force);
         if (!type) {
@@ -160,6 +194,7 @@ let Bean = Bean_1 = class Bean {
         }
         return this.beanMeta.typeBeanList[type];
     }
+
     ownList(type, alias, force = false) {
         let key = type + "_" + alias;
         if (!this.beanMeta.ownListList[key] || force) {
@@ -171,13 +206,13 @@ let Bean = Bean_1 = class Bean {
         }
         return this.beanMeta.ownListList[key];
     }
+
     sharedList(type, force = false) {
         let via;
         if (this.beanMeta.via) {
             via = this.beanMeta.via;
-        }
-        else {
-            let typeList = [this.beanMeta.type, type].sort(function (a, b) {
+        } else {
+            let typeList = [ this.beanMeta.type, type ].sort(function (a, b) {
                 return ('' + a).localeCompare(b);
             });
             via = typeList[0] + "_" + typeList[1];
@@ -191,6 +226,7 @@ let Bean = Bean_1 = class Bean {
         }
         return this.beanMeta.sharedListList[via];
     }
+
     async storeTypeBeanList() {
         this.devLog("storeTypeBeanList");
         for (let type in this.beanMeta.typeBeanList) {
@@ -202,6 +238,7 @@ let Bean = Bean_1 = class Bean {
             this[Bean_1.getRelationFieldName(type)] = bean.id;
         }
     }
+
     async storeSharedList() {
         let promiseList = [];
         for (let key in this.beanMeta.sharedListList) {
@@ -212,6 +249,7 @@ let Bean = Bean_1 = class Bean {
         }
         await this.R.concurrent(promiseList);
     }
+
     async storeOwnList() {
         let promiseList = [];
         for (let key in this.beanMeta.ownListList) {
@@ -222,24 +260,23 @@ let Bean = Bean_1 = class Bean {
         }
         await this.R.concurrent(promiseList);
     }
+
     async refresh() {
         let updatedBean = await this.R.load(this.beanMeta.type, this.id);
         if (updatedBean != null) {
             this.import(updatedBean.export());
             this.beanMeta.refresh();
         }
-        else {
-        }
     }
+
     import(obj) {
         this.devLog("Import");
         for (let key in obj) {
             if (key !== "beanMeta") {
                 if (obj[key] instanceof Date) {
-                    if (obj[key].getHours() == 0 && obj[key].getMinutes() == 0 && obj[key].getSeconds() == 0) {
+                    if (obj[key].getHours() === 0 && obj[key].getMinutes() === 0 && obj[key].getSeconds() === 0) {
                         obj[key] = this.R.isoDate(obj[key]);
-                    }
-                    else {
+                    } else {
                         obj[key] = this.R.isoDateTime(obj[key]);
                     }
                 }
@@ -247,52 +284,57 @@ let Bean = Bean_1 = class Bean {
             }
         }
     }
+
     export(camelCase = true) {
         let obj = {};
         for (let key in this) {
             if (key !== "beanMeta") {
                 if (camelCase) {
                     obj[Bean_1.removePrefixUnderscore(key)] = this[key];
-                }
-                else {
+                } else {
                     obj[Bean_1.dbFieldName(key)] = this[key];
                 }
             }
         }
         return obj;
     }
+
     fetchAs(type) {
         this.devLog("fetchAs:", type);
         let chainBean = this.createChainBean();
         chainBean.beanMeta.fetchAs = type;
         return chainBean;
     }
+
     alias(alias) {
         this.devLog("alias:", alias);
         let chainBean = this.createChainBean();
         chainBean.beanMeta.alias = alias;
         return chainBean;
     }
+
     via(via) {
         let chainBean = this.createChainBean();
         chainBean.beanMeta.via = via;
         return chainBean;
     }
+
     withCondition(condition, data = []) {
         let chainBean = this.createChainBean();
         chainBean.beanMeta.withCondition = condition;
         chainBean.beanMeta.withConditionData = data;
         return chainBean;
     }
+
     with(value, data = []) {
         return this.withCondition(" 1=1 " + value, data);
     }
+
     createChainBean() {
         if (this.beanMeta.isChainBean()) {
             this.devLog("I am a chain bean");
             return this;
-        }
-        else {
+        } else {
             this.devLog("Create a chain bean");
             let chainBean = this.R.duplicate(this, false);
             chainBean.id = this.id;
@@ -301,46 +343,55 @@ let Bean = Bean_1 = class Bean {
             return chainBean;
         }
     }
+
     getType() {
         return this.beanMeta.type;
     }
+
     get R() {
         return this.beanMeta.R;
     }
+
     static isOwnListProperty(name) {
         return name.startsWith("own") && name.endsWith("List");
     }
+
     static getTypeFromOwnListProperty(name) {
         if (this.isOwnListProperty(name)) {
             return name.slice(3, name.length - 4).toLowerCase();
-        }
-        else {
+        } else {
             throw name + " is not an own list property!";
         }
     }
+
     static isSharedListProperty(name) {
         return name.startsWith("shared") && name.endsWith("List");
     }
+
     static getTypeFromSharedListProperty(name) {
         if (this.isSharedListProperty(name)) {
             return name.slice(6, name.length - 4).toLowerCase();
-        }
-        else {
+        } else {
             throw name + " is not an shared list property!";
         }
     }
+
     static isRelationField(name) {
         return name.endsWith("Id");
     }
+
     static getInternalRelationFieldName(type) {
         return Bean_1.prefixUnderscore(Bean_1.getRelationFieldName(type));
     }
+
     static getRelationFieldName(type) {
         return type + "Id";
     }
+
     static prefixUnderscore(name) {
         return "_" + name;
     }
+
     static getTypeFromRelationField(name) {
         let s = name;
         if (s.endsWith("Id")) {
@@ -348,25 +399,29 @@ let Bean = Bean_1 = class Bean {
         }
         return Bean_1.removePrefixUnderscore(s);
     }
+
     static removePrefixUnderscore(name) {
         if (name.startsWith("_")) {
             return name.slice(1);
-        }
-        else {
+        } else {
             return name;
         }
     }
+
     static dbFieldName(name) {
         return Bean_1.removePrefixUnderscore((0, string_helper_1.camelCaseToUnderscore)(name));
     }
+
     static internalName(name) {
         return Bean_1.prefixUnderscore((0, string_helper_1.underscoreToCamelCase)(name));
     }
+
     devLog(...params) {
         if (this.R.devDebug) {
             console.log("[" + this.beanMeta.type, this._id + "]", ...params);
         }
     }
+
     isTainted() {
         return Object.keys(this.beanMeta.old).length > 0;
     }
@@ -392,54 +447,69 @@ class BeanMeta {
         _BeanMeta__sharedListList.set(this, {});
         _BeanMeta__old.set(this, {});
     }
+
     get R() {
         return __classPrivateFieldGet(this, _BeanMeta__R, "f");
     }
+
     set R(value) {
         __classPrivateFieldSet(this, _BeanMeta__R, value, "f");
     }
+
     get typeBeanList() {
         return __classPrivateFieldGet(this, _BeanMeta__typeBeanList, "f");
     }
+
     get type() {
         return __classPrivateFieldGet(this, _BeanMeta__type, "f");
     }
+
     set type(value) {
         if (value.match(/^[a-zA-Z0-9_-]+$/) == null) {
             throw `type name '${value}' is not allowed`;
         }
         __classPrivateFieldSet(this, _BeanMeta__type, value, "f");
     }
+
     get ownListList() {
         return __classPrivateFieldGet(this, _BeanMeta__ownListList, "f");
     }
+
     get sharedListList() {
         return __classPrivateFieldGet(this, _BeanMeta__sharedListList, "f");
     }
+
     set chainParentBean(value) {
         __classPrivateFieldSet(this, _BeanMeta__chainParentBean, value, "f");
     }
+
     isChainBean() {
-        return (__classPrivateFieldGet(this, _BeanMeta__chainParentBean, "f")) ? true : false;
+        return !!(__classPrivateFieldGet(this, _BeanMeta__chainParentBean, "f"));
     }
+
     get old() {
         return __classPrivateFieldGet(this, _BeanMeta__old, "f");
     }
+
     set old(value) {
         __classPrivateFieldSet(this, _BeanMeta__old, value, "f");
     }
+
     clearCache() {
         __classPrivateFieldSet(this, _BeanMeta__typeBeanList, {}, "f");
         __classPrivateFieldSet(this, _BeanMeta__ownListList, {}, "f");
         __classPrivateFieldSet(this, _BeanMeta__sharedListList, {}, "f");
     }
+
     clearHistory() {
         __classPrivateFieldSet(this, _BeanMeta__old, {}, "f");
     }
+
     refresh() {
         this.clearCache();
         this.clearHistory();
     }
+
     get lock() {
         return __classPrivateFieldGet(this, _BeanMeta__lock, "f");
     }

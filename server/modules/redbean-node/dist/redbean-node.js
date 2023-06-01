@@ -1,5 +1,5 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
+let __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -22,56 +22,58 @@ class RedBeanNode {
         this._modelList = {};
         this.schemaLock = new await_lock_1.default();
     }
+
     get knex() {
         if (this._transaction) {
             return this._transaction;
         }
         return this._knex;
     }
+
     isTransaction() {
         return !!this._transaction;
     }
+
     setup(dbType = 'sqlite', connection = { filename: './dbfile.db' }, pool = {}) {
         if (typeof dbType === "string") {
             if (!pool.min) {
-                if (dbType == "sqlite") {
+                if (dbType === "sqlite") {
                     pool.min = 1;
-                }
-                else {
+                } else {
                     pool.min = 2;
                 }
             }
             if (!pool.max) {
-                if (dbType == "sqlite") {
+                if (dbType === "sqlite") {
                     pool.max = 1;
-                }
-                else {
+                } else {
                     pool.max = 10;
                 }
             }
             if (!pool.idleTimeoutMillis) {
                 pool.idleTimeoutMillis = 30000;
             }
-            if (dbType == "mariadb") {
+            if (dbType === "mariadb") {
                 dbType = "mysql";
             }
             this.dbType = dbType;
-            let useNullAsDefault = (dbType == "sqlite");
+            let useNullAsDefault = (dbType === "sqlite");
             this._knex = (0, knex_1.default)({
                 client: dbType,
                 connection,
                 useNullAsDefault,
                 pool
             });
-        }
-        else {
+        } else {
             this._knex = dbType;
             this.dbType = this._knex.client.config.client;
         }
     }
+
     dispense(type) {
         return this.createBean(type);
     }
+
     createBean(type, isDispense = true) {
         if (type in this.modelList) {
             let bean = new this.modelList[type](type, this);
@@ -79,21 +81,24 @@ class RedBeanNode {
                 bean.onDispense();
             }
             return bean;
-        }
-        else {
+        } else {
             return new bean_1.Bean(type, this);
         }
     }
+
     freeze(v = true) {
         this.devLog("Freeze to" + v);
         this._freeze = v;
     }
+
     debug(v) {
         this._debug = v;
     }
+
     concurrent(promiseList) {
         return Promise.all(promiseList);
     }
+
     storeAll(beans, changedFieldsOnly = true) {
         let promiseList = [];
         for (let bean of beans) {
@@ -101,15 +106,16 @@ class RedBeanNode {
         }
         return this.concurrent(promiseList);
     }
+
     async store(bean, changedFieldsOnly = true) {
         await bean.beanMeta.lock.acquireAsync();
         try {
             return await this.storeCore(bean, changedFieldsOnly);
-        }
-        finally {
+        } finally {
             bean.beanMeta.lock.release();
         }
     }
+
     async storeCore(bean, changedFieldsOnly = true) {
         this.devLog("Store", bean.beanMeta.type, bean.id);
         await bean.storeTypeBeanList();
@@ -136,12 +142,10 @@ class RedBeanNode {
                 let queryPromise = this.knex(bean.getType()).where({ id: bean.id }).update(obj);
                 this.queryLog(queryPromise);
                 await queryPromise;
-            }
-            else {
+            } else {
                 this.devLog("Empty obj, no need to make query");
             }
-        }
-        else {
+        } else {
             let queryPromise = this.knex(bean.getType()).insert(obj).returning('id');
             this.queryLog(queryPromise);
             let result = await queryPromise;
@@ -158,15 +162,16 @@ class RedBeanNode {
         }
         return bean.id;
     }
+
     async updateTableSchema(bean, changedFieldsOnly = true) {
         await this.schemaLock.acquireAsync();
         try {
             await this.updateTableSchemaCore(bean);
-        }
-        finally {
+        } finally {
             this.schemaLock.release();
         }
     }
+
     async updateTableSchemaCore(bean) {
         this.devLog("Check Update Table Schema");
         if (!this._knex) {
@@ -181,8 +186,7 @@ class RedBeanNode {
                 });
                 this.queryLog(queryPromise);
                 await queryPromise;
-            }
-            catch (error) {
+            } catch (error) {
                 this.checkAllowedSchemaError(error);
             }
         }
@@ -196,57 +200,48 @@ class RedBeanNode {
                     let alterField = false;
                     let valueType = this.getDataType(value, fieldName);
                     this.devLog("Best column type =", valueType);
-                    if (!columnInfo.hasOwnProperty(fieldName)) {
+
+                    // if (!columnInfo.hasOwnProperty(fieldName)) {
+                    if (!Object.prototype.hasOwnProperty.call(columnInfo, fieldName)) {
                         addField = true;
-                    }
-                    else if (!this.isValidType(columnInfo[fieldName].type, valueType)) {
+                    } else if (!this.isValidType(columnInfo[fieldName].type, valueType)) {
                         this.debugLog(`Alter column is needed: ${fieldName} (dbType: ${columnInfo[fieldName].type}) (valueType: ${valueType})`);
                         addField = true;
                         alterField = true;
                     }
                     if (addField) {
                         let col;
-                        if (valueType == "integer") {
+                        if (valueType === "integer") {
                             this.debugLog("Create field (Int): " + fieldName);
                             col = table.integer(fieldName);
-                        }
-                        else if (valueType == "bigInteger") {
+                        } else if (valueType === "bigInteger") {
                             this.debugLog("Create field (bigInteger): " + fieldName);
                             col = table.bigInteger(fieldName);
-                        }
-                        else if (valueType == "float") {
+                        } else if (valueType === "float") {
                             this.debugLog("Create field (Float): " + fieldName);
                             col = table.float(fieldName);
-                        }
-                        else if (valueType == "boolean") {
+                        } else if (valueType === "boolean") {
                             this.debugLog("Create field (Boolean): " + fieldName);
                             col = table.boolean(fieldName);
-                        }
-                        else if (valueType == "text") {
+                        } else if (valueType === "text") {
                             this.debugLog("Create field (Text): " + fieldName);
                             col = table.text(fieldName, "longtext");
-                        }
-                        else if (valueType == "datetime") {
+                        } else if (valueType === "datetime") {
                             this.debugLog("Create field (Datetime): " + fieldName);
                             col = table.dateTime(fieldName);
-                        }
-                        else if (valueType == "datetimemillis") {
+                        } else if (valueType === "datetimemillis") {
                             this.debugLog("Create field (Datetimemillis): " + fieldName);
                             col = table.dateTime(fieldName);
-                        }
-                        else if (valueType == "date") {
+                        } else if (valueType === "date") {
                             this.debugLog("Create field (Date): " + fieldName);
                             col = table.date(fieldName);
-                        }
-                        else if (valueType == "time") {
+                        } else if (valueType === "time") {
                             this.debugLog("Create field (Time): " + fieldName);
                             col = table.time(fieldName);
-                        }
-                        else if (valueType == "timemillis") {
+                        } else if (valueType === "timemillis") {
                             this.debugLog("Create field (Timemillis): " + fieldName);
                             col = table.time(fieldName);
-                        }
-                        else {
+                        } else {
                             this.debugLog("Create field (String): " + fieldName);
                             col = table.string(fieldName);
                         }
@@ -262,138 +257,128 @@ class RedBeanNode {
             });
             this.queryLog(queryPromise);
             await queryPromise;
-        }
-        catch (error) {
+        } catch (error) {
             this.checkAllowedSchemaError(error);
         }
     }
+
     getDataType(value, fieldName = "") {
         let type = typeof value;
         this.devLog("Date Type of", value, "=", type);
         if (fieldName.endsWith("_id")) {
             return "integer";
         }
-        if (type == "boolean") {
+        if (type === "boolean") {
             return "boolean";
-        }
-        else if (type == "number") {
+        } else if (type === "number") {
             if (Number.isInteger(value)) {
                 if (value > 2147483647) {
                     return "bigInteger";
-                }
-                else if ((this.dbType == "mysql" || this.dbType == "mssql" || this.dbType == "pg") && (value == 1 || value == 0)) {
+                } else if ((this.dbType === "mysql" || this.dbType === "mssql" || this.dbType === "pg") && (value === 1 || value === 0)) {
                     return "boolean";
-                }
-                else {
+                } else {
                     return "integer";
                 }
-            }
-            else {
+            } else {
                 return "float";
             }
-        }
-        else if (type == "string") {
+        } else if (type === "string") {
             if (value.length > 230) {
                 return "text";
-            }
-            else {
+            } else {
                 if (this.isDateTime(value)) {
                     return "datetime";
-                }
-                else if (this.isDateTimeMillis(value)) {
+                } else if (this.isDateTimeMillis(value)) {
                     return "datetimemillis";
-                }
-                else if (this.isDate(value)) {
+                } else if (this.isDate(value)) {
                     return "date";
-                }
-                else if (this.isTime(value)) {
+                } else if (this.isTime(value)) {
                     return "time";
-                }
-                else if (this.isTimeMillis(value)) {
+                } else if (this.isTimeMillis(value)) {
                     return "timemillis";
                 }
                 return "varchar";
             }
-        }
-        else {
+        } else {
             return "varchar";
         }
     }
+
     isValidType(columnType, valueType) {
         this.devLog("isValidType", columnType, valueType);
-        if (columnType == "boolean" || columnType == "tinyint" || columnType == "bit") {
-            if (valueType == "integer" || valueType == "float" || valueType == "varchar" ||
-                valueType == "text" || valueType == "bigInteger" ||
-                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" ||
-                valueType == "time" || valueType == "timemillis") {
+        if (columnType === "boolean" || columnType === "tinyint" || columnType === "bit") {
+            if (valueType === "integer" || valueType === "float" || valueType === "varchar" ||
+                valueType === "text" || valueType === "bigInteger" ||
+                valueType === "datetime" || valueType === "datetimemillis" || valueType === "date" ||
+                valueType === "time" || valueType === "timemillis") {
                 return false;
             }
         }
-        if (columnType == "integer" || columnType == "int") {
-            if (valueType == "float" || valueType == "varchar" || valueType == "text" || valueType == "bigInteger" ||
-                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" ||
-                valueType == "time" || valueType == "timemillis") {
+        if (columnType === "integer" || columnType === "int") {
+            if (valueType === "float" || valueType === "varchar" || valueType === "text" || valueType === "bigInteger" ||
+                valueType === "datetime" || valueType === "datetimemillis" || valueType === "date" ||
+                valueType === "time" || valueType === "timemillis") {
                 return false;
             }
         }
-        if (columnType == "bigInteger" || columnType == "bigint") {
-            if (valueType == "float" || valueType == "varchar" || valueType == "text" ||
-                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" ||
-                valueType == "time" || valueType == "timemillis") {
+        if (columnType === "bigInteger" || columnType === "bigint") {
+            if (valueType === "float" || valueType === "varchar" || valueType === "text" ||
+                valueType === "datetime" || valueType === "datetimemillis" || valueType === "date" ||
+                valueType === "time" || valueType === "timemillis") {
                 return false;
             }
         }
-        if (columnType == "float") {
-            if (valueType == "varchar" || valueType == "text" || valueType == "datetime" ||
-                valueType == "datetimemillis" || valueType == "date" || valueType == "time" ||
-                valueType == "timemillis") {
+        if (columnType === "float") {
+            if (valueType === "varchar" || valueType === "text" || valueType === "datetime" ||
+                valueType === "datetimemillis" || valueType === "date" || valueType === "time" ||
+                valueType === "timemillis") {
                 return false;
             }
         }
-        if (columnType == "time") {
-            if (valueType == "varchar" || valueType == "text" ||
-                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date") {
+        if (columnType === "time") {
+            if (valueType === "varchar" || valueType === "text" ||
+                valueType === "datetime" || valueType === "datetimemillis" || valueType === "date") {
                 return false;
             }
         }
-        if (columnType == "date") {
-            if (valueType == "varchar" || valueType == "text" ||
-                valueType == "datetime" || valueType == "datetimemillis") {
+        if (columnType === "date") {
+            if (valueType === "varchar" || valueType === "text" ||
+                valueType === "datetime" || valueType === "datetimemillis") {
                 return false;
             }
         }
-        if (columnType == "datetime" || columnType == "datetime2") {
-            if (valueType == "varchar" || valueType == "text") {
+        if (columnType === "datetime" || columnType === "datetime2") {
+            if (valueType === "varchar" || valueType === "text") {
                 return false;
             }
         }
-        if (columnType == "varchar" || columnType == "nvarchar") {
-            if (valueType == "text") {
+        if (columnType === "varchar" || columnType === "nvarchar") {
+            if (valueType === "text") {
                 return false;
             }
         }
         return true;
     }
+
     async close() {
         await this.knex.destroy();
     }
+
     load(type, id) {
         return this.findOne(type, " id = ?", [
             id
         ]);
     }
+
     normalizeErrorMsg(error) {
         let e;
-        if (this.dbType == "sqlite") {
+        if (this.dbType === "sqlite") {
             e = error.message;
-        }
-        else if (this.dbType == "mysql") {
+        } else if (this.dbType === "mysql") {
             e = error.code;
-        }
-        else if (this.dbType == "mssql") {
+        } else if (this.dbType === "mssql") {
             e = error.message;
-        }
-        else if (this.dbType == "pg") {
+        } else if (this.dbType === "pg") {
             e = error.message;
         }
         if (!e) {
@@ -401,6 +386,7 @@ class RedBeanNode {
         }
         return e;
     }
+
     checkError(error, allowedErrorList) {
         this.devLog(error);
         let msg = this.normalizeErrorMsg(error);
@@ -416,13 +402,13 @@ class RedBeanNode {
                 if (allMatch) {
                     return;
                 }
-            }
-            else if (msg.includes(allowedError)) {
+            } else if (msg.includes(allowedError)) {
                 return;
             }
         }
         throw error;
     }
+
     checkAllowedError(error) {
         this.devLog("Check Allowed Error for bean query");
         this.checkError(error, [
@@ -432,15 +418,17 @@ class RedBeanNode {
             "Invalid object name",
         ]);
     }
+
     checkAllowedSchemaError(error) {
         this.devLog("Check Schema Error");
         this.checkError(error, [
-            ["SQLITE_ERROR: table ", "already exists"],
+            [ "SQLITE_ERROR: table ", "already exists" ],
             "SQLITE_ERROR: duplicate column name:",
             "ER_TABLE_EXISTS_ERROR",
             "ER_DUP_FIELDNAME"
         ]);
     }
+
     async trash(bean) {
         if (bean.id) {
             if (bean instanceof bean_model_1.BeanModel) {
@@ -455,53 +443,58 @@ class RedBeanNode {
             }
         }
     }
+
     async trashAll(beans) {
         for (let bean of beans) {
             await this.trash(bean);
         }
     }
+
     findCore(type, clause, data = []) {
         let queryPromise = this.knex.table(type).whereRaw(clause, data);
         this.queryLog(queryPromise);
         return queryPromise;
     }
+
     async find(type, clause = "", data = []) {
         try {
             let list = await this.findCore(type, clause, data);
             return this.convertToBeans(type, list);
-        }
-        catch (error) {
+        } catch (error) {
             this.checkAllowedError(error);
             return [];
         }
     }
+
     findStream(type, clause = "", data = []) {
         return bean_converter_stream_1.default.createStream(type, this, this.findCore(type, clause, data));
     }
+
     findAllCore(type, clause, data = []) {
         return this.findCore(type, " 1=1 " + clause, data);
     }
+
     async findAll(type, clause = "", data = []) {
         try {
             let list = await this.findAllCore(type, clause, data);
             return this.convertToBeans(type, list);
-        }
-        catch (error) {
+        } catch (error) {
             this.checkAllowedError(error);
             return [];
         }
     }
+
     findAllStream(type, clause, data = []) {
         return bean_converter_stream_1.default.createStream(type, this, this.findAllCore(type, clause, data));
     }
+
     async findOne(type, clause = "", data = []) {
         let queryPromise = this.knex.table(type).whereRaw(clause, data).first();
         this.queryLog(queryPromise);
         let obj;
         try {
             obj = await queryPromise;
-        }
-        catch (error) {
+        } catch (error) {
             this.checkAllowedError(error);
         }
         if (!obj) {
@@ -510,13 +503,13 @@ class RedBeanNode {
         let bean = this.convertToBean(type, obj);
         return bean;
     }
+
     convertToBean(type, obj) {
         this.devLog("convertToBean", type, obj);
         let isDispense;
         if (obj.id) {
             isDispense = false;
-        }
-        else {
+        } else {
             isDispense = true;
         }
         let bean = this.createBean(type, isDispense);
@@ -526,6 +519,7 @@ class RedBeanNode {
         }
         return bean;
     }
+
     convertToBeans(type, objList) {
         let list = [];
         objList.forEach((obj) => {
@@ -535,23 +529,26 @@ class RedBeanNode {
         });
         return list;
     }
+
     async exec(sql, data = []) {
         await this.normalizeRaw(sql, data);
     }
+
     getAll(sql, data = []) {
         return this.normalizeRaw(sql, data);
     }
+
     getAllStream(sql, data = []) {
         return this.normalizeRawCore(sql, data).stream();
     }
+
     async getRow(sql, data = [], autoLimit = false) {
         if (autoLimit) {
-            if (this.dbType == "mssql") {
+            if (this.dbType === "mssql") {
                 if (sql.trim().toLowerCase().startsWith("select ")) {
                     sql = sql.replace(/select/i, '$& TOP 1');
                 }
-            }
-            else {
+            } else {
                 let limitTemplate = this.knex.limit(1).toSQL().toNative();
                 sql = sql + limitTemplate.sql.replace("select *", "");
                 data = data.concat(limitTemplate.bindings);
@@ -561,26 +558,28 @@ class RedBeanNode {
         let result = await this.normalizeRaw(sql, data);
         if (result.length > 0) {
             return result[0];
-        }
-        else {
+        } else {
             return null;
         }
     }
+
     normalizeRawCore(sql, data) {
         let queryPromise = this.knex.raw(sql, data);
         this.queryLog(queryPromise);
         return queryPromise;
     }
+
     async normalizeRaw(sql, data) {
         let result = await this.normalizeRawCore(sql, data);
         this.queryLog(sql);
-        if (this.dbType == "mysql") {
+        if (this.dbType === "mysql") {
             result = result[0];
-        } else if (this.dbType == "pg") {
-            result = result.rows
+        } else if (this.dbType === "pg") {
+            result = result.rows;
         }
         return result;
     }
+
     async getCol(sql, data = []) {
         let list = await this.getAll(sql, data);
         let key;
@@ -594,15 +593,16 @@ class RedBeanNode {
             return obj[key];
         });
     }
+
     async getCell(sql, data = [], autoLimit = true) {
         let row = await this.getRow(sql, data, autoLimit);
         if (row) {
             return Object.values(row)[0];
-        }
-        else {
+        } else {
             return null;
         }
     }
+
     async getAssoc(sql, data = []) {
         let list = await this.getAll(sql, data);
         let keyKey;
@@ -620,6 +620,7 @@ class RedBeanNode {
         }
         return obj;
     }
+
     async count(type, clause = "", data = [], autoLimit = true) {
         let where = "";
         if (clause) {
@@ -630,17 +631,18 @@ class RedBeanNode {
                 type,
                 ...data,
             ], autoLimit);
-        }
-        catch (error) {
+        } catch (error) {
             this.checkAllowedError(error);
             return 0;
         }
     }
+
     inspect(type) {
         let queryPromise = this.knex.table(type).columnInfo();
         this.queryLog(queryPromise);
         return queryPromise;
     }
+
     async begin() {
         if (!this._freeze) {
             console.warn("Warning: Transaction is not working in non-freeze mode.");
@@ -657,50 +659,55 @@ class RedBeanNode {
         redBeanNode._transaction = await this.knex.transaction();
         return redBeanNode;
     }
+
     async commit() {
         if (this._transaction) {
             await this._transaction.commit();
             this._transaction = null;
         }
     }
+
     async rollback() {
         if (this._transaction) {
             await this._transaction.rollback();
             this._transaction = null;
         }
     }
+
     async transaction(callback) {
         let trx = await this.begin();
         try {
             await callback(trx);
             await trx.commit();
-        }
-        catch (error) {
+        } catch (error) {
             await trx.rollback();
         }
     }
+
     devLog(...params) {
         if (this.devDebug) {
             console.log("[R]", ...params);
         }
     }
+
     debugLog(...params) {
         if (this.isDebug()) {
             console.log("[R]", ...params);
         }
     }
+
     queryLog(queryPromise) {
         if (this._debug) {
             let sql;
             if (typeof queryPromise === "string") {
                 sql = queryPromise;
-            }
-            else {
+            } else {
                 sql = queryPromise.toString();
             }
             console.log('\x1b[36m%s\x1b[0m', "Query:", sql);
         }
     }
+
     duplicate(targetBean, deepCopy = true) {
         let bean = this.dispense(targetBean.beanMeta.type);
         bean.import(targetBean.export());
@@ -710,103 +717,111 @@ class RedBeanNode {
         }
         throw "Error: deep copy not implemented yet";
     }
+
     hasTable(tableName) {
         let queryPromise = this.knex.schema.hasTable(tableName);
         this.queryLog(queryPromise);
         return queryPromise;
     }
+
     isFrozen() {
         return this._freeze;
     }
+
     isDebug() {
         return this._debug;
     }
+
     isoDateTime(dateTime = undefined) {
         let dayjsObject;
         if (dateTime instanceof dayjs_1.default) {
             dayjsObject = dateTime;
-        }
-        else {
+        } else {
             dayjsObject = (0, dayjs_1.default)(dateTime);
         }
         return dayjsObject.format('YYYY-MM-DD HH:mm:ss');
     }
+
     isoDateTimeMillis(dateTime = undefined) {
         let dayjsObject;
         if (dateTime instanceof dayjs_1.default) {
             dayjsObject = dateTime;
-        }
-        else {
+        } else {
             dayjsObject = (0, dayjs_1.default)(dateTime);
         }
         return dayjsObject.format('YYYY-MM-DD HH:mm:ss.SSS');
     }
+
     isoDate(date = undefined) {
         let dayjsObject;
         if (date instanceof dayjs_1.default) {
             dayjsObject = date;
-        }
-        else {
+        } else {
             dayjsObject = (0, dayjs_1.default)(date);
         }
         return dayjsObject.format('YYYY-MM-DD');
     }
+
     isoTime(date = undefined) {
         let dayjsObject;
         if (date instanceof dayjs_1.default) {
             dayjsObject = date;
-        }
-        else {
+        } else {
             dayjsObject = (0, dayjs_1.default)(date);
         }
         return dayjsObject.format('HH:mm:ss');
     }
+
     isoTimeMillis(date = undefined) {
         let dayjsObject;
         if (date instanceof dayjs_1.default) {
             dayjsObject = date;
-        }
-        else {
+        } else {
             dayjsObject = (0, dayjs_1.default)(date);
         }
         return dayjsObject.format('HH:mm:ss.SSS');
     }
+
     isDate(value) {
         let format = "YYYY-MM-DD";
         return (0, dayjs_1.default)(value, format).format(format) === value;
     }
+
     isDateTime(value) {
         let format = "YYYY-MM-DD HH:mm:ss";
         return (0, dayjs_1.default)(value, format).format(format) === value;
     }
+
     isDateTimeMillis(value) {
         let format = "YYYY-MM-DD HH:mm:ss.SSS";
         return (0, dayjs_1.default)(value, format).format(format) === value;
     }
+
     isTime(value) {
         value = "2020-10-20 " + value;
         let format = "YYYY-MM-DD HH:mm:ss";
         return (0, dayjs_1.default)(value, format).format(format) === value;
     }
+
     isTimeMillis(value) {
         value = "2020-10-20 " + value;
         let format = "YYYY-MM-DD HH:mm:ss.SSS";
         return (0, dayjs_1.default)(value, format).format(format) === value;
     }
+
     autoloadModels(dir) {
-        let tsFileList, jsFileList;
+        // let tsFileList; let jsFileList;
         let isTSNode = !!process[Symbol.for("ts-node.register.instance")];
-        let ext, fileList;
+        let ext;
+        let fileList;
         if (isTSNode) {
             ext = ".ts";
-        }
-        else {
+        } else {
             ext = ".js";
         }
-        if (this.devDebug && dir == "./model") {
+        if (this.devDebug && dir === "./model") {
             fileList = glob_1.default.sync("./lib/model/*" + ext);
-        }
-        else {
+        } else {
             fileList = glob_1.default.sync(dir + "/*" + ext);
         }
         for (let file of fileList) {
@@ -820,15 +835,14 @@ class RedBeanNode {
             let obj = require(path_1.default.resolve(file));
             if ("default" in obj && obj.default.prototype instanceof bean_model_1.BeanModel) {
                 this.modelList[info.name] = obj.default;
-            }
-            else if (obj.prototype instanceof bean_model_1.BeanModel) {
+            } else if (obj.prototype instanceof bean_model_1.BeanModel) {
                 this.modelList[info.name] = obj;
-            }
-            else {
+            } else {
                 console.log(file, "is not a valid BeanModel, skipped");
             }
         }
     }
+
     get modelList() {
         return this._modelList;
     }

@@ -3,7 +3,7 @@ const { R } = require("../modules/redbean-node/dist/redbean-node");
 // const { R } = require("redbean-node");
 const dayjs = require("dayjs");
 
- class APIKey extends BeanModel {
+class APIKey extends BeanModel {
     /**
      * Get the current status of this API key
      * @returns {string} active, inactive or expired

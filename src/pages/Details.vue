@@ -256,7 +256,7 @@ export default {
         },
 
         lastResult() {
-            return this.lastHeartBeat.msg
+            return this.lastHeartBeat.msg;
         },
 
         lastHeartBeat() {
@@ -271,7 +271,7 @@ export default {
 
         ping() {
             if (this.lastHeartBeat.ping || this.lastHeartBeat.ping === 0) {
-                return this.lastHeartBeat.ping
+                return this.lastHeartBeat.ping;
             }
 
             return this.$t("notAvailableShort");

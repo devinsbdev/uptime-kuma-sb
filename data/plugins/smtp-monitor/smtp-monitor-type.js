@@ -16,6 +16,9 @@ class SmtpMonitorType extends MonitorType {
     smtpClient = null;
 
     async check(monitor, heartbeat) {
+        let ping = 0;
+        let time_to_twofifty = 0;
+
         // fetch nodemailer instance
         const smtpClient = await this.getSmtpClient(monitor);
 
@@ -39,45 +42,69 @@ class SmtpMonitorType extends MonitorType {
         // monitor is down if no 250 OK
         if ((smtp_response.response).match('^250')) {
             console.log('proceed');
+            time_to_twofifty = dayjs().valueOf() - startTime;
         } else {
             throw new Error(smtp_response.error);
         }
 
-        // we'll call graph below to see if the message arrived
-        let graph_client = new GraphClient(config);
-        if (!(await graph_client.fetchClientCreds())) {
-            throw new Error('something is up with ur azure token bro, goaway');
-        }
-
         let testMsg = undefined;
-        let elapsed_secs = 0;
-        while (testMsg === undefined) {
-            elapsed_secs = ((dayjs().valueOf() - startTime) / 1000);
-            if (elapsed_secs > 240) { // 4 min timeout
-                throw new Error(`Timed out waiting for test message ${startTime} to arrive. SMTP response was: ${smtp_response.response}`);
+        try {
+            // we'll call graph below to see if the message arrived
+            let graph_client = new GraphClient(config);
+            if (!(await graph_client.fetchClientCreds())) {
+                throw new Error('something is up with ur azure token bro, goaway');
             }
-            // lets not completely hammer msgraph ok guys
-            await sleep(2000);
-            // console.debug(`Checking for a matching 'x-sent-at' header ...`)
-            testMsg = await this.checkMessages(graph_client, startTime);
+
+            let graph_elapsed_secs = 0;
+            while (testMsg === undefined) {
+                graph_elapsed_secs = ((dayjs().valueOf() - startTime) / 1000);
+                if (graph_elapsed_secs > 240) { // 4 min timeout
+                    // throw new Error(`Timed out waiting for test message ${startTime} to arrive. SMTP response was: ${smtp_response.response}`);
+                    break;
+                }
+                // lets not completely hammer msgraph ok guys
+                await sleep(2000);
+                // console.debug(`Checking for a matching 'x-sent-at' header ...`)
+
+                testMsg = await this.checkMessages(graph_client, startTime);
+            }
+        } catch (error) {
+            console.log(error.message);
         }
 
-        // 'ping' will be latency displayed on dash, so this should be
-        // total elapsed from startTime to receipt timestamp in header
-        let ping = testMsg.messageReceiptTs - startTime;
-        console.debug(`${monitor.name} delay: ${ping}ms`);
-
-        // if everything worked out then we'll have an 'accepted' response
-        // and ping will be a positive integer (unit: ms)
-        if (smtp_response.accepted.length >= 1 && ping > 0) {
+        // graph call may produce a transient error; if we got a '250 OK' let's consider it a pass
+        if (testMsg !== undefined) {
+            ping = testMsg.messageReceiptTs - startTime;
             monitor.last_result = heartbeat.msg = `${dayjs().toDate()} | ${testMsg.internetMessageId} | ${smtp_response.response}`;
             heartbeat.status = UP;
             heartbeat.ping = ping;
         } else {
-            throw new Error(`Test message failed: Stdout: ${smtp_response.respose}; Stderr: ${smtp_response.error}`);
-            // monitor.last_result = heartbeat.msg = `${dayjs().toDate()} | ${smtp_response.response} | ${smtp_response.error}`
-            // heartbeat.status = DOWN;
+            ping = time_to_twofifty;
+            if (smtp_response.accepted.length >= 1 && ping > 0) {
+                monitor.last_result = heartbeat.msg = smtp_response.response;
+                heartbeat.status = UP;
+                heartbeat.ping = ping;
+            } else {
+                throw new Error(`Test message failed: Stdout: ${smtp_response.respose}; Stderr: ${smtp_response.error}`);
+            }
         }
+
+        // 'ping' will be latency displayed on dash, so this should be
+        // total elapsed from startTime to receipt timestamp in header
+        // let ping = testMsg.messageReceiptTs - startTime;
+        // console.debug(`${monitor.name} delay: ${ping}ms`);
+
+        // if everything worked out then we'll have an 'accepted' response
+        // and ping will be a positive integer (unit: ms)
+        // if (smtp_response.accepted.length >= 1 && ping > 0) {
+        //     monitor.last_result = heartbeat.msg = `${dayjs().toDate()} | ${testMsg.internetMessageId} | ${smtp_response.response}`;
+        //     heartbeat.status = UP;
+        //     heartbeat.ping = ping;
+        // } else {
+        //     throw new Error(`Test message failed: Stdout: ${smtp_response.respose}; Stderr: ${smtp_response.error}`);
+        //     monitor.last_result = heartbeat.msg = `${dayjs().toDate()} | ${smtp_response.response} | ${smtp_response.error}`
+        //     heartbeat.status = DOWN;
+        // }
     }
 
     async checkMessages(graph_client, startTime) {
@@ -94,9 +121,13 @@ class SmtpMonitorType extends MonitorType {
 
         messageIWant = await graph_client.doApiCall(graph_uri, 'GET', headers).then( async (d) => {
 
+            let yaThatOne;
+
             // filter for messages that match our 'x-sent-at' header
-            let yaThatOne = ( d.data.value.filter( res => res.internetMessageHeaders
-                .find( header => header.value === startTime.toString())) )[0];
+            if (d.data.value.length > 0) {
+                yaThatOne = ( d.data.value.filter( res => res.internetMessageHeaders
+                    .find( header => header.value === startTime.toString())) )[0];
+            }
 
             if (yaThatOne !== undefined) {
                 console.log('... jackpot.');

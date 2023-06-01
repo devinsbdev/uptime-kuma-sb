@@ -146,7 +146,7 @@ class Database {
     /** Get the size of the database */
     static async getSize(table = 'all') {
         log.debug("db", "Database.getSize()");
-        let dbsize = await R.getCell('SELECT pg_size_pretty(pg_database_size(?));', [ Database.dbName], false);
+        let dbsize = await R.getCell('SELECT pg_size_pretty(pg_database_size(?));', [ Database.dbName ], false);
         log.debug("db", dbsize);
         return dbsize;
     }

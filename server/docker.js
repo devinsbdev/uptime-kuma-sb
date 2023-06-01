@@ -50,7 +50,7 @@ class DockerHost {
         }
 
         // Delete removed proxy from monitors if exists
-        await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ?", [ 
+        await R.exec("UPDATE ?? SET ?? = ? WHERE ?? = ?", [
             'monitor',
             'docker_host',
             null,

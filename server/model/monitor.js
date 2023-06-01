@@ -993,7 +993,7 @@ class Monitor extends BeanModel {
             AND ping IS NOT NULL
             AND monitor_id = ?
             `, [
-                monitorID,
+            monitorID,
         ], false));
 
         timeLogger.print(`[Monitor: ${monitorID}] avgPing`);

@@ -1,7 +1,7 @@
 module.exports = {
     ignorePatterns: [
         "test/*",
-        "server/modules/apicache/*",
+        "server/modules/**",
         "src/util.js"
     ],
     root: true,
