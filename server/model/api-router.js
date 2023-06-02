@@ -12,6 +12,7 @@ const { UptimeCacheList } = require("../uptime-cache-list");
 const { makeBadge } = require("badge-maker");
 const { badgeConstants } = require("../config");
 const { Prometheus } = require("../prometheus");
+const { startMonitor, updateMonitorNotification } = require("../server");
 
 let router = express.Router();
 
@@ -556,7 +557,110 @@ router.get("/api/badge/:id/response", cache("5 minutes"), async (request, respon
         sendHttpError(response, error.message);
     }
 });
+router.post("/api/add-monitor", async (request, response) => {
+    allowAllOrigin(response);
 
-module.exports = {
-    router
-};
+    /** Invoke-WebRequest -Uri http://localhost:3001/api/add-monitor -Method Post -Credential $cred -Authentication Basic -AllowUnencryptedAuthentication -Headers @{Accept='application/json';'Content-Type'='application/json'} -Body $(@{name='devin-mon-9';type='http';url='https://google.com';description='a monitor ok great yaya'; tags=@(@{name="http"; value=""}, @{name='client'; value="google"})} | ConvertTo-Json) */
+
+    // "Content-Type": "application/json"
+    const {
+        name,
+        type,
+        url,
+        description,
+        tags
+    } = request.body;
+
+    let my_tags = [];
+    for (let index = 0; index < tags.length; index++) {
+        let a_tag;
+        const elem = tags[index];
+        let mt = R.dispense("tag");
+        let et = await R.find("tag", "name = ?", [ elem.name ]);
+
+        if (et.length === 0) {
+            a_tag = {
+                name: elem.name,
+            };
+
+            let hex;
+            switch (elem.name) {
+                case "client":
+                    hex = '#013c29';
+                    break;
+                default:
+                    hex = '#939393';
+            }
+            a_tag['color'] = hex;
+
+            mt.import(a_tag);
+            await R.store(mt);
+        } else {
+            mt = et[0];
+        }
+
+        my_tags.push({
+            tagbb: mt,
+            value: elem.value
+        });
+    }
+
+    let monitor = {
+        type: type,
+        name: name,
+        url: url,
+        description: description,
+        user_id: 1,
+        method: "GET",
+        interval: 60,
+        retryInterval: 60,
+        resendInterval: 0,
+        maxretries: 1,
+        notificationIDList: {},
+        ignoreTls: false,
+        upsideDown: false,
+        packetSize: 56,
+        expiryNotification: true,
+        maxredirects: 10,
+        accepted_statuscodes: [ "200-299" ],
+        dns_resolve_type: "A",
+        dns_resolve_server: "1.1.1.1",
+        docker_container: "",
+        docker_host: null,
+        proxyId: null,
+        mqttUsername: "",
+        mqttPassword: "",
+        mqttTopic: "",
+        mqttSuccessMessage: "",
+        authMethod: null,
+        httpBodyEncoding: "json"
+    };
+
+    let notificationIDList = monitor.notificationIDList;
+    delete monitor.notificationIDList;
+
+    monitor.accepted_statuscodes_json = JSON.stringify(monitor.accepted_statuscodes);
+    delete monitor.accepted_statuscodes;
+
+    let bean = R.dispense("monitor");
+    bean.import(monitor);
+    bean.validate();
+    await R.store(bean);
+    await updateMonitorNotification(bean.id, notificationIDList);
+    await startMonitor(bean.user_id, bean.id);
+
+    monitor.id = bean.id;
+    log.info("monitor", `Added Monitor: ${monitor.id} via API call`);
+
+    for (let taggy of my_tags) {
+        let mtt = R.dispense("monitor_tag");
+        mtt.import({
+            monitor_id: monitor.id,
+            tag_id: taggy.tagbb.id,
+            value: taggy.value || "",
+        });
+        await R.store(mtt);
+    }
+});
+
+module.exports = router;

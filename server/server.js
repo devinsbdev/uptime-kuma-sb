@@ -1933,3 +1933,8 @@ process.addListener("unhandledRejection", (error, promise) => {
     UptimeKumaServer.errorLog(error, false);
     console.error("If you keep encountering errors, please report to https://github.com/louislam/uptime-kuma/issues");
 });
+
+module.exports = {
+    startMonitor,
+    updateMonitorNotification
+};
