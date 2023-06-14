@@ -3,7 +3,7 @@
  * node "server/server.js"
  * DO NOT require("./server") in other modules, it likely creates circular dependency!
  */
-console.log("Welcome to Uptime Is The Right Time");
+console.log("Welcome to Uptime Kuma");
 
 // As the log function need to use dayjs, it should be very top
 const dayjs = require("dayjs");
@@ -1149,11 +1149,9 @@ let needSetup = false;
                 ]);
 
                 // Cleanup unused Tags
-                await R.exec("delete from ?? where ( select count(*) from ?? mt where ? = ? ) = ?", [
+                await R.exec("delete from ?? where ( select count(*) from ?? mt where tag.id = mt.tag_id ) = ?", [
                     'tag',
                     'monitor_tag',
-                    'tag.id',
-                    'mt.tag_id',
                     0
                 ]);
 
@@ -1933,8 +1931,3 @@ process.addListener("unhandledRejection", (error, promise) => {
     UptimeKumaServer.errorLog(error, false);
     console.error("If you keep encountering errors, please report to https://github.com/louislam/uptime-kuma/issues");
 });
-
-module.exports = {
-    startMonitor,
-    updateMonitorNotification
-};

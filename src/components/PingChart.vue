@@ -51,10 +51,10 @@ export default {
                 6: "6h",
                 12: "12h",
                 24: "24h",
-                168: "1w",
+                48: "48h",
             },
 
-            // A heartbeatList for 3h, 6h, 24h, 1w
+            // A heartbeatList for 3h, 6h, 24h, 48h
             // Uses the $root.heartbeatList when value is null
             heartbeatList: null
         };

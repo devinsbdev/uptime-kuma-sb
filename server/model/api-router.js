@@ -12,7 +12,6 @@ const { UptimeCacheList } = require("../uptime-cache-list");
 const { makeBadge } = require("badge-maker");
 const { badgeConstants } = require("../config");
 const { Prometheus } = require("../prometheus");
-const { startMonitor, updateMonitorNotification } = require("../server");
 
 let router = express.Router();
 
@@ -557,6 +556,7 @@ router.get("/api/badge/:id/response", cache("5 minutes"), async (request, respon
         sendHttpError(response, error.message);
     }
 });
+
 router.post("/api/add-monitor", async (request, response) => {
     allowAllOrigin(response);
 
@@ -571,38 +571,58 @@ router.post("/api/add-monitor", async (request, response) => {
         tags
     } = request.body;
 
+    if (type !== 'http') {
+        log.error("api-router", `Adding ${type} monitor type via API is not yet supported.`);
+        response.status(405);
+        return response.send(`Adding ${type} monitor type via API is not yet supported.`);
+    }
+
+    if (!name || !url) {
+        log.error("api-router", `'name' and 'url' fields are mandatory`);
+        response.status(405);
+        return response.send(`'name' and 'url' fields are mandatory`);
+    }
+
     let my_tags = [];
-    for (let index = 0; index < tags.length; index++) {
-        let a_tag;
-        const elem = tags[index];
-        let mt = R.dispense("tag");
-        let et = await R.find("tag", "name = ?", [ elem.name ]);
-
-        if (et.length === 0) {
-            a_tag = {
-                name: elem.name,
-            };
-
-            let hex;
-            switch (elem.name) {
-                case "client":
-                    hex = '#013c29';
-                    break;
-                default:
-                    hex = '#939393';
+    if (tags) {
+        for (let index = 0; index < tags.length; index++) {
+            let a_tag;
+            const elem = tags[index];
+            if (! elem.name) {
+                log.error("api-router", `Invalid tag format passed in POST request: ${tags}`);
+                response.status(400);
+                return response.send('Incorrect tag input format.');
             }
-            a_tag['color'] = hex;
 
-            mt.import(a_tag);
-            await R.store(mt);
-        } else {
-            mt = et[0];
+            let mt = R.dispense("tag");
+            let et = await R.find("tag", "name = ?", [ elem.name ]);
+
+            if (et.length === 0) {
+                a_tag = {
+                    name: elem.name,
+                };
+
+                let hex;
+                switch (elem.name) {
+                    case "client":
+                        hex = '#013c29';
+                        break;
+                    default:
+                        hex = '#939393';
+                }
+                a_tag['color'] = hex;
+
+                mt.import(a_tag);
+                await R.store(mt);
+            } else {
+                mt = et[0];
+            }
+
+            my_tags.push({
+                tagbb: mt,
+                value: elem.value
+            });
         }
-
-        my_tags.push({
-            tagbb: mt,
-            value: elem.value
-        });
     }
 
     let monitor = {
@@ -642,12 +662,25 @@ router.post("/api/add-monitor", async (request, response) => {
     monitor.accepted_statuscodes_json = JSON.stringify(monitor.accepted_statuscodes);
     delete monitor.accepted_statuscodes;
 
+    // validate and store new monitor
     let bean = R.dispense("monitor");
-    bean.import(monitor);
-    bean.validate();
-    await R.store(bean);
-    await updateMonitorNotification(bean.id, notificationIDList);
-    await startMonitor(bean.user_id, bean.id);
+    try {
+        bean.import(monitor);
+        bean.validate();
+        await R.store(bean);
+    } catch (err) {
+        log.error("api-router", err.message);
+        response.status(400);
+        return response.send(JSON.stringify({ "Result": `${err.message}` }));
+    }
+
+    // update notify relation and start monitor
+    try {
+        await updateMonitorNotification(bean.id, notificationIDList);
+        await startMonitor(bean.user_id, bean.id);
+    } catch (err) {
+        log.error("api-router", err.message);
+    }
 
     monitor.id = bean.id;
     log.info("monitor", `Added Monitor: ${monitor.id} via API call`);
@@ -661,6 +694,71 @@ router.post("/api/add-monitor", async (request, response) => {
         });
         await R.store(mtt);
     }
+
+    let savedMonitor = await R.find(
+        "monitor", "?? = ? AND ?? = ?", [ 'name', monitor.name, 'id', monitor.id ]);
+    if (savedMonitor.length > 0) {
+        response.status(201);
+        response.send(JSON.stringify({ 'Result': `Monitor ${monitor.id} created.` }));
+    } else {
+        response.status(400);
+        response.send(JSON.stringify({ 'Result': `New monitor not found..` }));
+    }
 });
+
+/**
+ * Start the specified monitor
+ * @param {number} userID ID of user who owns monitor
+ * @param {number} monitorID ID of monitor to start
+ * @returns {Promise<void>}
+ */
+async function startMonitor(userID, monitorID) {
+    log.info("manage", `Resume Monitor: ${monitorID} User ID: ${userID}`);
+
+    await R.exec("UPDATE  ?? SET ?? = ? WHERE ?? = ? AND ?? = ? ", [
+        'monitor',
+        'active',
+        'true',
+        'id',
+        monitorID,
+        'user_id',
+        userID,
+    ]);
+
+    let monitor = await R.findOne("monitor", " ?? = ? ", [
+        'id',
+        monitorID,
+    ]);
+
+    if (monitor.id in server.monitorList) {
+        server.monitorList[monitor.id].stop();
+    }
+
+    server.monitorList[monitor.id] = monitor;
+    monitor.start(io);
+}
+
+/* * Update notifications for a given monitor
+ * @param {number} monitorID ID of monitor to update
+ * @param {number[]} notificationIDList List of new notification
+ * providers to add
+ * @returns {Promise<void>}
+ */
+async function updateMonitorNotification(monitorID, notificationIDList) {
+    await R.exec("DELETE FROM ?? WHERE ?? = ? ", [
+        'monitor_notification',
+        'monitor_id',
+        monitorID,
+    ]);
+
+    for (let notificationID in notificationIDList) {
+        if (notificationIDList[notificationID]) {
+            let relation = R.dispense("monitor_notification");
+            relation.monitor_id = monitorID;
+            relation.notification_id = notificationID;
+            await R.store(relation);
+        }
+    }
+}
 
 module.exports = router;

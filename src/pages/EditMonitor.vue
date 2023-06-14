@@ -1077,6 +1077,11 @@ message HealthCheckResponse {
                     return false;
                 }
             }
+            let smtpmin = 300;
+            if (this.monitor.type === 'smtp' && this.monitor.interval < smtpmin) {
+                toast.error(`The request interval must be >= ${smtpmin} seconds.`);
+                return false;
+            }
             return true;
         },
 

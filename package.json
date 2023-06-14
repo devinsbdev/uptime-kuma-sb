@@ -24,7 +24,7 @@
         "test": "node test/prepare-test-server.js && npm run jest-backend",
         "test-with-build": "npm run build && npm test",
         "jest-backend": "cross-env TEST_BACKEND=1 jest --runInBand --detectOpenHandles --forceExit --config=./.config/jest-backend.config.js",
-        "build-docker": "npm run build && npm run build-docker-builder-go && npm run build-docker-debian-base && npm run build-docker-debian",
+        "build-docker": "npm run build-docker-builder-go && npm run build-docker-debian-base && npm run build-docker-debian",
         "build-docker-debian": "node ./extra/env2arg.js docker buildx build -f docker/dockerfile --no-cache --platform linux/amd64 -t devinsbdev/uptime-kuma-sb:1.21.3 --target release .",
         "build-docker-debian-base": "docker buildx build -f docker/debian-base.dockerfile --platform linux/amd64 -t devinsbdev/uptime-kuma-sb:base-debian .",
         "build-docker-builder-go": "docker buildx build -f docker/builder-go.dockerfile --platform linux/amd64 -t devinsbdev/uptime-kuma-sb:builder-go .",
