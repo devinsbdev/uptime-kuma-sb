@@ -39,12 +39,13 @@ class SmtpMonitorType extends MonitorType {
         console.debug(`Closing SMTP client connection to ${monitor.name}`);
         await smtpClient.close();
 
+        console.log(smtp_response.response);
+
         // monitor is down if no 250 OK
-        if ((smtp_response.response).match('^250')) {
-            console.log('proceed');
-            time_to_twofifty = dayjs().valueOf() - startTime;
-        } else {
+        if ( !( (smtp_response.response).match('^250') ) ) {
             throw new Error(smtp_response.error);
+        } else {
+            time_to_twofifty = dayjs().valueOf() - startTime;
         }
 
         let testMsg = undefined;
@@ -52,7 +53,7 @@ class SmtpMonitorType extends MonitorType {
             // we'll call graph below to see if the message arrived
             let graph_client = new GraphClient(config);
             if (!(await graph_client.fetchClientCreds())) {
-                throw new Error('something is up with ur azure token bro, goaway');
+                throw new Error('something is up with ur azure token bro');
             }
 
             let graph_elapsed_secs = 0;
@@ -72,21 +73,17 @@ class SmtpMonitorType extends MonitorType {
             console.log(error.message);
         }
 
-        // graph call may produce a transient error; if we got a '250 OK' let's consider it a pass
+        // graph call may produce a transient error in some cases but
+        // the retry interval should mitigate any alerts;
+        // if we got a '250 OK' but no Graph response that's still a fail!
         if (testMsg !== undefined) {
             ping = testMsg.messageReceiptTs - startTime;
             monitor.last_result = heartbeat.msg = `${dayjs().toDate()} | ${testMsg.internetMessageId} | ${smtp_response.response}`;
             heartbeat.status = UP;
             heartbeat.ping = ping;
         } else {
-            ping = time_to_twofifty;
-            if (smtp_response.accepted.length >= 1 && ping > 0) {
-                monitor.last_result = heartbeat.msg = smtp_response.response;
-                heartbeat.status = UP;
-                heartbeat.ping = ping;
-            } else {
-                throw new Error(`Test message failed: Stdout: ${smtp_response.respose}; Stderr: ${smtp_response.error}`);
-            }
+            heartbeat.ping = time_to_twofifty; // graph the 250
+            throw new Error(`Graph message verification failed after '250 OK' from ${monitor.name}: ${smtp_response.error}`);
         }
 
         // 'ping' will be latency displayed on dash, so this should be
