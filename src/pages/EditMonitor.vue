@@ -981,7 +981,7 @@ message HealthCheckResponse {
                     ignoreTls: false,
                     upsideDown: false,
                     packetSize: 56,
-                    expiryNotification: true,
+                    expiryNotification: false,
                     maxredirects: 10,
                     accepted_statuscodes: [ "200-299" ],
                     dns_resolve_type: "A",

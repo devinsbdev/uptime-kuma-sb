@@ -26,8 +26,8 @@ class Database {
     static dbName = process.env.DATABASE_NAME;
     static dbPass = process.env.DATABASE_PASS;
     static dbUser = process.env.DATABASE_USER;
-    static minPool = process.env.MIN_POOL || 15;
-    static maxPool = process.env.MAX_POOL || 30;
+    static minPool = (Number(process.env.MIN_POOL) || 15);
+    static maxPool = (Number(process.env.MAX_POOL) || 30);
 
     /**
      * Connect to the database
