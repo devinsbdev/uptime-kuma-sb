@@ -26,6 +26,8 @@ class Database {
     static dbName = process.env.DATABASE_NAME;
     static dbPass = process.env.DATABASE_PASS;
     static dbUser = process.env.DATABASE_USER;
+    static minPool = process.env.MIN_POOL || 15;
+    static maxPool = process.env.MAX_POOL || 30;
 
     /**
      * Connect to the database
@@ -40,7 +42,7 @@ class Database {
 
         const acquireConnectionTimeout = 10 * 1000;
         const idleTimeout = 300 * 1000;
-        console.log(process.env);
+
         const knexInstance = knex({
             client: 'pg',
             connection: {
@@ -49,14 +51,13 @@ class Database {
                 user: Database.dbUser,
                 password: Database.dbPass,
                 database: Database.dbName,
-                // acquireConnectionTimeout: acquireConnectionTimeout
             },
             pool: {
-                min: 5,
-                max: 15,
+                min: Database.minPool,
+                max: Database.maxPool,
                 idleTimeoutMillis: idleTimeout,
-                propagateCreateError: false,
                 acquireTimeoutMillis: acquireConnectionTimeout,
+                propagateCreateError: false,
             },
         });
 
