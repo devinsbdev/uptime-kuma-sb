@@ -578,7 +578,7 @@ router.get("/api/list-monitors", async (req, res) => {
             'name': monName,
             'url': monUrl,
             'fqdn': monFqdn
-        })
+        });
     }
 
     if (allMonCount > 0) {
@@ -589,7 +589,8 @@ router.get("/api/list-monitors", async (req, res) => {
         }));
     } else {
         res.status(400);
-        res.send(JSON.stringify({ 'Result': `No monitors found..`, 'Data': null }));
+        res.send(JSON.stringify({ 'Result': `No monitors found..`,
+            'Data': null }));
     }
 });
 
