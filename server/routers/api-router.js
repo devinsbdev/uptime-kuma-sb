@@ -557,6 +557,43 @@ router.get("/api/badge/:id/response", cache("5 minutes"), async (request, respon
     }
 });
 
+router.get("/api/list-monitors", async (req, res) => {
+    allowAllOrigin(res);
+
+    let allMonitors = await R.findAll("monitor");
+    let allMonCount = allMonitors.length;
+    let returnMe = [];
+
+    for (let n = 0; n < allMonCount; n++) {
+        let mon = allMonitors[n];
+
+        let monJson = await mon.toJSON();
+        let urlNfo = mon.getUrl();
+
+        let monName = monJson.name;
+        let monUrl = monJson.url;
+        let monFqdn = urlNfo.hostname;
+
+        returnMe.push({
+            'name': monName,
+            'url': monUrl,
+            'fqdn': monFqdn
+        });
+    }
+
+    if (allMonCount > 0) {
+        res.status(201);
+        res.send(JSON.stringify({
+            'Count': allMonCount,
+            'Data': returnMe
+        }));
+    } else {
+        res.status(400);
+        res.send(JSON.stringify({ 'Result': `No monitors found..`,
+            'Data': null }));
+    }
+});
+
 router.post("/api/add-monitor", async (request, response) => {
     allowAllOrigin(response);
 

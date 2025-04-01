@@ -62,6 +62,7 @@ module.exports = {
             "named": "never",
             "asyncArrow": "always"
         }],
+        "linebreak-style": ["warn", "unix"],
         "curly": "warn",
         "object-curly-spacing": [ "warn", "always" ],
         "object-curly-newline": "off",
