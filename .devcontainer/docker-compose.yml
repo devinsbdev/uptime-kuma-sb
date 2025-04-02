@@ -6,11 +6,35 @@ services:
       context: .
       dockerfile: dockerfile
     container_name: uptime-kuma
+    networks:
+      uptime-kuma-testnet: null
     volumes:
       - ..:/app
       - /app/node_modules
-      - /app/.git
-      - /app/data
+      # - /app/.git
+      # - /app/data
     ports:
+      - "3000:3000"
       - "3001:3001"
     entrypoint: sleep infinity
+  uptime-kuma-db:
+    environment:
+      POSTGRES_DB: uptime-kuma-testdb
+      POSTGRES_PASSWORD: postgres-pass!
+      POSTGRES_USER: postgres
+    image: postgres:latest
+    networks:
+      uptime-kuma-testnet: { aliases: ["uptime-kuma-db"] } # Allow the uptime-kuma service to connect to this db service by this alias
+    ports:
+    - "5432:5432" # Expose PostgreSQL on the default port for testing purposes
+    restart: always
+    volumes:
+    - uptime-kuma-db-data:/var/lib/postgresql/data # Persist data on container restart
+
+volumes:
+  uptime-kuma-db-data:
+    driver: local
+
+networks:
+  uptime-kuma-testnet:
+    driver: bridge

@@ -24,7 +24,6 @@ module.exports = {
     rules: {
         "yoda": "warn",
         eqeqeq: [ "warn", "smart" ],
-        "linebreak-style": [ "warn", "windows" ],
         // "camelcase": [ "warn", {
         //     "properties": "never",
         //     "ignoreImports": true

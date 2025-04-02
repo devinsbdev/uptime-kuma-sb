@@ -6,9 +6,27 @@
 	"forwardPorts": [3000, 3001],
 	"service": "uptime-kuma",
 	"workspaceFolder": "/app",
-	"settings": {
-		"terminal.integrated.shell.linux": "/bin/sh"
-	  },
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.shell.linux": "/bin/sh",
+				"debug.javascript.automaticallyTunnelRemoteServer": true
+			},
+			"extensions": [
+				"aaron-bond.better-comments",
+				"ms-vscode-remote.remote-containers",
+				"sdras.vue-vscode-snippets",
+				"dbaeumer.vscode-eslint",
+				"github.vscode-github-actions",
+				"GitHub.copilot",
+				"Vue.volar",
+				"redhat.vscode-yaml",
+				"christian-kohler.path-intellisense",
+				"ms-vscode.js-debug-nightly",
+				"EditorConfig.EditorConfig",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
 	"postCreateCommand": ["yarn", "install"]
   }
-  
